@@ -7,8 +7,7 @@ defmodule FTC.Overseer.Application do
 
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: FTC.Overseer.Worker.start_link(arg)
-      # {FTC.Overseer.Worker, arg}
+      {FTC.Overseer.Websocket, [debug: [:trace]]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
