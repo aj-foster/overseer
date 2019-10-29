@@ -22,7 +22,10 @@ defmodule FTC.Overseer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:websockex, "~> 0.4.2"}
+      # Requests to scoring system
+      {:httpoison, "~> 1.6"},
+      {:websockex, "~> 0.4.2"},
+      {:jason, "~> 1.1"}
     ]
   end
 end
