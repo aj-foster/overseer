@@ -26,8 +26,6 @@ defmodule FTC.Overseer.Executor do
 
   ## Options
 
-    * `:executable`: (optional, default `kubectl`) Name of the executable to run
-
     * `:receiver`: (optional) PID of the process that should receive output via `IO.Stream`
 
   ## Examples

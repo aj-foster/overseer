@@ -2,20 +2,13 @@ defmodule FTC.Overseer.Executor.Runner do
   @moduledoc false
   require Logger
 
-  @type option() ::
-          {:executable, String.t()}
-          | {:receiver, pid()}
-
+  @type option() :: {:receiver, pid() | String.t()}
   @type opts() :: [option()]
 
   @spec config(Keyword.t()) :: opts()
   defp config(opts) do
-    executable = opts[:executable] || "echo"
-    receiver = configure_receiver(opts[:receiver])
-
     [
-      executable: executable,
-      receiver: receiver
+      receiver: configure_receiver(opts[:receiver])
     ]
   end
 
@@ -32,8 +25,6 @@ defmodule FTC.Overseer.Executor.Runner do
   return `{:error, output, code}`.
 
   ## Options
-
-    * `:executable`: (optional, default `kubectl`) Name of the executable to run
 
     * `:receiver`: (optional) PID of the process that should receive output via `IO.Stream`
   """
