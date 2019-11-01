@@ -1,3 +1,3 @@
 #!/bin/bash
 
-export $(grep -v '^#' .env | xargs) && echo "not implemented"
+export $(grep -v '^#' .env | xargs) && _build/prod/rel/overseer/bin/overseer start_iex
