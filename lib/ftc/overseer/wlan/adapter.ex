@@ -63,15 +63,6 @@ defmodule FTC.Overseer.WLAN.Adapter do
   ###########
 
   defp scan_command(adapter) do
-    """
-    iwlist #{adapter} scan \
-    | grep -E 'Address:|ESSID:|Channel:|Signal level=' \
-    | sed -e 's/^.*Address: //' \
-          -e 's/^\s*ESSID://' \
-          -e 's/^\s*Channel://' \
-          -e 's/.*Signal level=\(.*\) dBm\s*/\1/' \
-    | awk '{ORS = (NR % 4 == 0)? "\n" : " | "; print}' \
-    | grep 'DIRECT'
-    """
+    "./bin/scan \"#{adapter}\""
   end
 end
