@@ -40,6 +40,15 @@ defmodule FTC.Overseer.WLAN.Adapter do
     {:ok, %AdapterState{name: opts[:name], channel: nil, active: false}}
   end
 
+  def handle_call(:scan, _from, state) do
+    Map.fetch!(state, :name)
+    |> scan_command()
+    |> Executor.execute()
+    |> IO.inspect()
+
+    {:reply, nil, state}
+  end
+
   def handle_cast({:team, team}, state) do
     {:noreply, %{state | team: team}}
   end
@@ -47,5 +56,22 @@ defmodule FTC.Overseer.WLAN.Adapter do
   def handle_cast({:channel, channel}, state) when is_channel(channel) do
     Executor.execute("iwconfig #{state.name} #{channel}")
     {:noreply, %{state | channel: channel}}
+  end
+
+  ###########
+  # Helpers #
+  ###########
+
+  defp scan_command(adapter) do
+    """
+    iwlist #{adapter} scan \
+    | grep -E 'Address:|ESSID:|Channel:|Signal level=' \
+    | sed -e 's/^.*Address: //' \
+          -e 's/^\s*ESSID://' \
+          -e 's/^\s*Channel://' \
+          -e 's/.*Signal level=\(.*\) dBm\s*/\1/' \
+    | awk '{ORS = (NR % 4 == 0)? "\n" : " | "; print}' \
+    | grep 'DIRECT'
+    """
   end
 end
