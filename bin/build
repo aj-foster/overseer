@@ -2,4 +2,6 @@
 
 export MIX_ENV=prod
 
+mix local.hex --force
+mix deps.get
 mix release
