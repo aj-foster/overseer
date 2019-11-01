@@ -24,3 +24,6 @@ overseer-*.tar
 
 # ElixirLS Files
 /.elixir_ls/
+
+# Ignore environment configuration
+.env
