@@ -6,4 +6,5 @@ iwlist "$1" scan \
       -e 's/^\s*ESSID://' \
       -e 's/^\s*Channel://' \
       -e 's/.*Signal level=\(.*\) dBm\s*/\1/' \
-| awk '{ORS = (NR % 4 == 0)? "\n" : " | "; print}'
+| awk '{ORS = (NR % 4 == 0)? "\n" : " | "; print}' \
+| grep -i 'DIRECT'
