@@ -51,14 +51,14 @@ defmodule FTC.Overseer.MatchManager do
 
     case Scorekeeper.get_active_match() do
       {:ok, %{name: ^match_name}} ->
-        {:noreply, %{}}
+        {:noreply, %MatchState{match: match_name}}
 
       {:ok, %{name: name}} ->
         Logger.error("Expected match #{match_name} but current active match is #{name}")
-        {:noreply, %{}}
+        {:noreply, %MatchState{match: match_name}}
 
       _ ->
-        {:noreply, %{}}
+        {:noreply, %MatchState{}}
     end
   end
 
@@ -69,6 +69,11 @@ defmodule FTC.Overseer.MatchManager do
 
   def handle_info(:stop, %MatchState{state: :active, match: match}) do
     Logger.info("Match end: #{match}")
+    {:noreply, %MatchState{}}
+  end
+
+  def handle_info(:stop, _state) do
+    Logger.info("Match end: [unknown]")
     {:noreply, %MatchState{}}
   end
 end
