@@ -25,7 +25,7 @@ defmodule FTC.Overseer.Scorekeeper do
     with {:ok, %HTTPoison.Response{body: body}} <- HTTPoison.get(url),
          {:ok, data} <- Jason.decode(body),
          {:ok, match} <- parse_match(data) do
-      Logger.debug("Active match: #{match[:name]} with #{Enum.join(match[:teams], ", ")}")
+      Logger.debug("Active match: #{match.name} with #{Enum.join(match.teams, ", ")}")
       {:ok, match}
     end
   end
