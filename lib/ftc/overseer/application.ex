@@ -7,7 +7,8 @@ defmodule FTC.Overseer.Application do
   def start(_type, _args) do
     children = [
       FTC.Overseer.MatchManager,
-      FTC.Overseer.Scorekeeper.Websocket
+      FTC.Overseer.Scorekeeper.Websocket,
+      FTC.Overseer.WLAN
     ]
 
     opts = [strategy: :one_for_one, name: FTC.Overseer.Supervisor]
