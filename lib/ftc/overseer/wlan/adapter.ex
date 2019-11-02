@@ -25,8 +25,8 @@ defmodule FTC.Overseer.WLAN.Adapter do
   end
 
   @spec observe(pid, pos_integer) :: :ok
-  def observe(adapter, team) do
-    GenServer.cast(adapter, {:observe, team})
+  def observe(adapter, team, opts \\ []) do
+    GenServer.cast(adapter, {:observe, team, opts[:temp] || []})
   end
 
   @spec stop(pid) :: :ok
@@ -40,10 +40,13 @@ defmodule FTC.Overseer.WLAN.Adapter do
 
   @spec init(Keyword.t()) :: {:ok, AdapterState.t()}
   def init(opts) do
+    Executor.execute("ifconfig #{opts[:name]} down")
+    Executor.execute("iwconfig #{opts[:name]} mode monitor")
+    Executor.execute("ifconfig #{opts[:name]} up")
     {:ok, %AdapterState{name: opts[:name], channel: nil, active_pid: nil}}
   end
 
-  def handle_cast({:observe, team}, %{name: name} = state) do
+  def handle_cast({:observe, team, _other_teams}, %{name: name} = state) do
     do_scan(name)
     |> Enum.filter(fn %{"team" => team_number} -> team_number == team end)
     |> Enum.sort_by(fn %{"signal" => signal} -> signal end)

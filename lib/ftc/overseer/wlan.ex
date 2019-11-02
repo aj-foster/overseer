@@ -22,7 +22,7 @@ defmodule FTC.Overseer.WLAN do
 
     Enum.zip(adapters, teams)
     |> Enum.each(fn {adapter, team} ->
-      Adapter.observe(adapter, team)
+      Adapter.observe(adapter, team, temp: teams -- [team])
     end)
 
     :ok
