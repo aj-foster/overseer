@@ -50,7 +50,8 @@ defmodule FTC.Overseer.Scorekeeper do
   #
   @spec parse_match(map) :: {:ok, map} | {:error, String.t(), map}
   defp parse_match(data) do
-    with %{"matches" => [match]} <- data,
+    with %{"matches" => matches} <- data,
+         [match] <- filter_old_matches(matches),
          %{"field" => field, "matchName" => name} <- match,
          %{"blue" => %{"team1" => blue1, "team2" => blue2}} <- match,
          %{"red" => %{"team1" => red1, "team2" => red2}} <- match do
@@ -64,5 +65,12 @@ defmodule FTC.Overseer.Scorekeeper do
       result ->
         {:error, "Unexpected result", result}
     end
+  end
+
+  # Filter matches that have finished but are not committed.
+  #
+  defp filter_old_matches(matches) do
+    matches
+    |> Enum.reject(fn %{"matchState" => state} -> state == "REVIEW" end)
   end
 end
