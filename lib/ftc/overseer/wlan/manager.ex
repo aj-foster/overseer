@@ -39,7 +39,10 @@ defmodule FTC.Overseer.WLAN.Manager do
   ###########
 
   defp list_adapters() do
-    {:ok, output} = Executor.execute("iwconfig 2>/dev/null | grep 'IEEE 802.11' | cut -d' ' -f 1")
+    {:ok, output} =
+      Executor.execute(
+        "iwconfig 2>/dev/null | grep 'IEEE 802.11' | cut -d' ' -f 1 | grep -v wlan0"
+      )
 
     output
     |> String.trim()
