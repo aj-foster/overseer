@@ -28,7 +28,7 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
       |> Map.put(:scheme, "ws")
       |> URI.to_string()
 
-    WebSockex.start_link(url, __MODULE__, nil, opts)
+    WebSockex.start_link(url, __MODULE__, nil, Keyword.put(opts, :name, __MODULE__))
   end
 
   ##########
