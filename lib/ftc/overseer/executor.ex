@@ -55,16 +55,24 @@ defmodule FTC.Overseer.Executor do
     * `:on_output`: (optional) Function to run when the spawn process produces output. The function
       should accept two arguments: the `id` of the spawned process and the output as a string.
   """
-  @spec spawn(String.t(), String.t(), Keyword.t()) :: :ok
+  @spec spawn(String.t(), String.t(), Keyword.t()) :: {:ok, pid} | {:error, any}
   def spawn(command, id, opts \\ []) do
     opts =
       opts
       |> Keyword.put(:command, command)
       |> Keyword.put(:id, id)
-      |> Keyword.put_new(:on_exit, & &1)
-      |> Keyword.put_new(:on_output, & &1)
+      |> Keyword.put_new(:on_exit, fn _id, code -> code end)
+      |> Keyword.put_new(:on_output, fn _id, output -> output end)
 
     DynamicSupervisor.start_child(__MODULE__, {Receiver, opts})
+  end
+
+  @doc """
+  Stop a running spawned process.
+  """
+  @spec stop(pid) :: :ok
+  def stop(pid) do
+    Process.exit(pid, :kill)
     :ok
   end
 

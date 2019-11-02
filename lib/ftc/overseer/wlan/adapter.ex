@@ -5,8 +5,6 @@ defmodule FTC.Overseer.WLAN.Adapter do
   alias FTC.Overseer.AdapterState
   alias FTC.Overseer.Executor
 
-  defguard is_channel(x) when is_integer(x) and ((x > 0 and x < 12) or x > 35)
-
   ##########
   # Client #
   ##########
@@ -26,17 +24,12 @@ defmodule FTC.Overseer.WLAN.Adapter do
     end
   end
 
-  @spec set_team(pid(), pos_integer()) :: :ok
-  def set_team(adapter, team) do
-    GenServer.cast(adapter, {:team, team})
+  @spec observe(pid, pos_integer) :: :ok
+  def observe(adapter, team) do
+    GenServer.cast(adapter, {:observe, team})
   end
 
-  @spec observe(pid()) :: :ok
-  def observe(adapter) do
-    GenServer.cast(adapter, :observe)
-  end
-
-  @spec stop(pid()) :: :ok
+  @spec stop(pid) :: :ok
   def stop(adapter) do
     GenServer.cast(adapter, :stop)
   end
@@ -47,23 +40,28 @@ defmodule FTC.Overseer.WLAN.Adapter do
 
   @spec init(Keyword.t()) :: {:ok, AdapterState.t()}
   def init(opts) do
-    {:ok, %AdapterState{name: opts[:name], channel: nil, active: false}}
+    {:ok, %AdapterState{name: opts[:name], channel: nil, active_pid: nil}}
   end
 
-  def handle_call(:scan, _from, state) do
-    Map.fetch!(state, :name)
-    |> do_scan()
+  def handle_cast({:observe, team}, %{name: name} = state) do
+    do_scan(name)
+    |> Enum.filter(fn %{"team" => team_number} -> team_number == team end)
+    |> Enum.sort_by(fn %{"signal" => signal} -> signal end)
+    |> List.first()
+    |> case do
+      %{"channel" => channel} ->
+        Executor.execute("iwconfig #{name} #{channel}")
+        {:noreply, %{state | team: team, channel: channel}}
 
-    {:reply, :ok, state}
+      _ ->
+        Logger.warn("Team #{team} not found in initial scan")
+        {:noreply, %{state | team: team}}
+    end
   end
 
-  def handle_cast({:team, team}, state) do
-    {:noreply, %{state | team: team}}
-  end
-
-  def handle_cast({:channel, channel}, state) when is_channel(channel) do
-    Executor.execute("iwconfig #{state.name} #{channel}")
-    {:noreply, %{state | channel: channel}}
+  def handle_cast(:stop, %{active_pid: pid} = state) do
+    Executor.stop(pid)
+    {:noreply, %{state | team: nil, active_pid: nil, channel: nil}}
   end
 
   ###########
