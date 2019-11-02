@@ -57,8 +57,10 @@ defmodule FTC.Overseer.MatchManager do
         Logger.error("Expected match #{match_name} but current active match is #{name}")
         {:noreply, %MatchState{match: match_name}}
 
-      _ ->
-        {:noreply, %MatchState{}}
+      other ->
+        IO.inspect(other)
+        Logger.error("Could not get data for active match")
+        {:noreply, %MatchState{match: match_name}}
     end
   end
 
