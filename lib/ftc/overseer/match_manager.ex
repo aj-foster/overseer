@@ -2,8 +2,9 @@ defmodule FTC.Overseer.MatchManager do
   use GenServer
   require Logger
 
-  alias FTC.Overseer.MatchState
+  alias FTC.Overseer.Match
   alias FTC.Overseer.Scorekeeper
+  alias FTC.Overseer.WLAN
 
   # Total time: authonomous + changeover + teleop
   @match_length_ms (30 + 8 + 120) * 1000
@@ -24,8 +25,8 @@ defmodule FTC.Overseer.MatchManager do
   Mark the beginning of the given match.
   """
   @spec start_match(String.t()) :: :ok
-  def start_match(match) do
-    GenServer.cast(__MODULE__, {:start, match})
+  def start_match(match_name) do
+    GenServer.cast(__MODULE__, {:start, match_name})
   end
 
   @doc """
@@ -42,7 +43,7 @@ defmodule FTC.Overseer.MatchManager do
 
   @spec init(any) :: {:ok, MatchState.t()}
   def init(_opts) do
-    {:ok, %MatchState{}}
+    {:ok, :inactive}
   end
 
   def handle_cast({:start, match_name}, _state) do
@@ -50,32 +51,40 @@ defmodule FTC.Overseer.MatchManager do
     Process.send_after(self(), :stop, @match_length_ms)
 
     case Scorekeeper.get_active_match() do
-      {:ok, %{name: ^match_name}} ->
-        {:noreply, %MatchState{match: match_name}}
+      {:ok, %Match{name: ^match_name, teams: teams} = match} ->
+        WLAN.observe(teams)
+        {:noreply, match}
 
-      {:ok, %{name: name}} ->
+      {:ok, %Match{name: name, teams: teams} = match} ->
         Logger.error("Expected match #{match_name} but current active match is #{name}")
-        {:noreply, %MatchState{match: match_name}}
+
+        WLAN.observe(teams)
+        {:noreply, match}
 
       other ->
-        IO.inspect(other)
-        Logger.error("Could not get data for active match")
-        {:noreply, %MatchState{match: match_name}}
+        Logger.error("Could not get data for active match. Got #{inspect(other)}")
+        {:noreply, :inactive}
     end
   end
 
-  def handle_cast(:abort, %{state: :active, match: match}) do
-    Logger.info("Match abort: #{match}")
-    {:noreply, %MatchState{}}
+  def handle_cast(:abort, %Match{name: name}) do
+    Logger.info("Match abort: #{name}")
+
+    WLAN.stop_all()
+    {:noreply, :inactive}
   end
 
-  def handle_info(:stop, %MatchState{state: :active, match: match}) do
-    Logger.info("Match end: #{match}")
-    {:noreply, %MatchState{}}
+  def handle_info(:stop, %Match{name: name}) do
+    Logger.info("Match end: #{name}")
+
+    WLAN.stop_all()
+    {:noreply, :inactive}
   end
 
   def handle_info(:stop, _state) do
     Logger.info("Match end: [unknown]")
-    {:noreply, %MatchState{}}
+
+    WLAN.stop_all()
+    {:noreply, :inactive}
   end
 end
