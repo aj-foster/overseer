@@ -44,5 +44,6 @@ defmodule FTC.Overseer.WLAN.Manager do
     output
     |> String.trim()
     |> String.split(~r/\s/, trim: true)
+    |> Enum.sort()
   end
 end

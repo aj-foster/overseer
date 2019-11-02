@@ -31,6 +31,16 @@ defmodule FTC.Overseer.WLAN.Adapter do
     GenServer.cast(adapter, {:team, team})
   end
 
+  @spec observe(pid()) :: :ok
+  def observe(adapter) do
+    GenServer.cast(adapter, :observe)
+  end
+
+  @spec stop(pid()) :: :ok
+  def stop(adapter) do
+    GenServer.cast(adapter, :stop)
+  end
+
   ##########
   # Server #
   ##########
@@ -42,11 +52,9 @@ defmodule FTC.Overseer.WLAN.Adapter do
 
   def handle_call(:scan, _from, state) do
     Map.fetch!(state, :name)
-    |> scan_command()
-    |> Executor.execute()
-    |> IO.inspect()
+    |> do_scan()
 
-    {:reply, nil, state}
+    {:reply, :ok, state}
   end
 
   def handle_cast({:team, team}, state) do
@@ -62,7 +70,45 @@ defmodule FTC.Overseer.WLAN.Adapter do
   # Helpers #
   ###########
 
-  defp scan_command(adapter) do
-    "./bin/scan \"#{adapter}\""
+  @scan_line ~r/^(?<address>([A-F0-9:])*) \| (?<channel>\d+) \| (?<signal>-?\d+) \| "(?<SSID>.*)"$/
+  @valid_ssid ~r/DIRECT-[[:alnum:]]+-(?<team>\d+)-/i
+
+  defp do_scan(adapter) do
+    {:ok, output} = Executor.execute("./bin/scan \"#{adapter}\"")
+
+    String.split(output, "\n", trim: true)
+    |> Stream.map(fn line -> Regex.named_captures(@scan_line, line) end)
+    |> Stream.reject(&is_nil/1)
+    |> Stream.map(fn %{"ssid" => ssid} = record ->
+      with %{"team" => team_str} <- Regex.named_captures(@valid_ssid, ssid),
+           {team, ""} <- Integer.parse(team_str) do
+        Map.put(record, "team", team)
+      else
+        _ -> nil
+      end
+    end)
+    |> Stream.reject(&is_nil/1)
+    |> Stream.map(fn %{"channel" => channel} = record ->
+      case Integer.parse(channel) do
+        {channel, ""} ->
+          Map.put(record, "channel", channel)
+
+        _ ->
+          Logger.warn("Invalid channel in scan: #{channel}")
+          nil
+      end
+    end)
+    |> Stream.reject(&is_nil/1)
+    |> Stream.map(fn %{"signal" => signal} = record ->
+      case Integer.parse(signal) do
+        {signal, ""} ->
+          Map.put(record, "signal", signal)
+
+        _ ->
+          Logger.warn("Invalid signal in scan: #{signal}")
+          nil
+      end
+    end)
+    |> Stream.reject(&is_nil/1)
   end
 end
