@@ -71,7 +71,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
     end
   end
 
-  def handle_cast(:stop, %{active_pid: pid} = state) do
+  def handle_cast(:stop, %{active_pid: pid} = state) when is_pid(pid) do
     Executor.stop(pid)
     {:noreply, %{state | team: nil, active_pid: nil, channel: nil}}
   end
