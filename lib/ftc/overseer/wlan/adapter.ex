@@ -26,7 +26,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
 
   @spec observe(pid, pos_integer) :: :ok
   def observe(adapter, team, opts \\ []) do
-    GenServer.cast(adapter, {:observe, team, opts[:temp] || []})
+    GenServer.cast(adapter, {:start, team, opts[:temp] || []})
   end
 
   @spec scan(pid) :: {:ok, [map]} | :error
