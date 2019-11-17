@@ -51,11 +51,16 @@ defmodule FTC.Overseer.WLAN.Adapter do
     {:ok, %AdapterState{name: opts[:name], channel: nil, active_pid: nil}}
   end
 
-  def handle_call(:scan, _from, %{name: _name} = state) do
-    {:reply, nil, state}
+  def handle_cast({:start, team, _other_teams}, state) do
+    GenServer.cast(self(), :observe)
+    {:noreply, %{state | team: team}}
   end
 
-  def handle_cast({:observe, team, _other_teams}, %{name: name} = state) do
+  def handle_cast(:observe, %{team: team} = state) when is_nil(team) do
+    {:noreply, state}
+  end
+
+  def handle_cast(:observe, %{name: name, team: team} = state) do
     do_scan(name)
     |> Enum.filter(fn %{"team" => team_number} -> team_number == team end)
     |> Enum.sort_by(fn %{"signal" => signal} -> signal end)
@@ -66,7 +71,8 @@ defmodule FTC.Overseer.WLAN.Adapter do
         {:noreply, %{state | team: team, channel: channel}}
 
       _ ->
-        Logger.warn("Team #{team} not found in initial scan")
+        Logger.warn("Team #{team} not found in scan")
+        Process.send_after(self(), {:"$gen_cast", self(), :observe}, 1000)
         {:noreply, %{state | team: team}}
     end
   end
