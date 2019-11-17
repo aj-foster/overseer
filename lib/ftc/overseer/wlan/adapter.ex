@@ -106,7 +106,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
     String.split(output, "\n", trim: true)
     |> Stream.map(fn line -> Regex.named_captures(@scan_line, line) end)
     |> Stream.reject(&is_nil/1)
-    |> Stream.map(fn %{"ssid" => ssid} = record ->
+    |> Stream.map(fn %{"SSID" => ssid} = record ->
       with %{"team" => team_str} <- Regex.named_captures(@valid_ssid, ssid),
            {team, ""} <- Integer.parse(team_str) do
         Map.put(record, "team", team)
