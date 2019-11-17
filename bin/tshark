@@ -1,8 +1,12 @@
 #!/bin/bash
 
+# Usage:
+#   ./bin/tshark [interface] [channel]
+
 ifconfig "$1" down
 iwconfig "$1" mode managed
 ifconfig "$1" up
+iwconfig "$1" channel "$2"
 
 tshark -i "$1" -I -f "type mgt subtype deauth" &
 pid=$!

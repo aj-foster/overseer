@@ -62,7 +62,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
     |> List.first()
     |> case do
       %{"channel" => channel} ->
-        Executor.execute("iwconfig #{name} #{channel}")
+        Logger.debug("Team #{team} found on channel #{channel}")
         {:noreply, %{state | team: team, channel: channel}}
 
       _ ->
@@ -76,6 +76,10 @@ defmodule FTC.Overseer.WLAN.Adapter do
     {:noreply, %{state | team: nil, active_pid: nil, channel: nil}}
   end
 
+  def handle_cast(:stop, state) do
+    {:noreply, %{state | team: nil, active_pid: nil, channel: nil}}
+  end
+
   ###########
   # Helpers #
   ###########
@@ -83,9 +87,16 @@ defmodule FTC.Overseer.WLAN.Adapter do
   @scan_line ~r/^(?<address>([A-F0-9:])*) \| (?<channel>\d+) \| (?<signal>-?\d+) \| "(?<SSID>.*)"$/
   @valid_ssid ~r/DIRECT-[[:alnum:]]+-(?<team>\d+)-/i
 
+  @spec do_scan(String.t()) :: list
   defp do_scan(adapter_name) do
-    {:ok, output} = Executor.execute("./bin/scan \"#{adapter_name}\"")
+    case Executor.execute("./bin/scan \"#{adapter_name}\"") do
+      {:ok, output} -> process_output(output)
+      {:error, _output, _code} -> []
+    end
+  end
 
+  @spec process_output(String.t()) :: list
+  defp process_output(output) do
     String.split(output, "\n", trim: true)
     |> Stream.map(fn line -> Regex.named_captures(@scan_line, line) end)
     |> Stream.reject(&is_nil/1)
@@ -120,5 +131,6 @@ defmodule FTC.Overseer.WLAN.Adapter do
       end
     end)
     |> Stream.reject(&is_nil/1)
+    |> Enum.to_list()
   end
 end
