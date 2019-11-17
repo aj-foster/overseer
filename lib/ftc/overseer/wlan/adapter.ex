@@ -52,15 +52,24 @@ defmodule FTC.Overseer.WLAN.Adapter do
   end
 
   def handle_cast({:start, team, _other_teams}, state) do
-    GenServer.cast(self(), :observe)
+    Process.send(self(), :observe, [])
     {:noreply, %{state | team: team}}
   end
 
-  def handle_cast(:observe, %{team: team} = state) when is_nil(team) do
+  def handle_cast(:stop, %{active_pid: pid} = state) when is_pid(pid) do
+    Executor.stop(pid)
+    {:noreply, %{state | team: nil, active_pid: nil, channel: nil}}
+  end
+
+  def handle_cast(:stop, state) do
+    {:noreply, %{state | team: nil, active_pid: nil, channel: nil}}
+  end
+
+  def handle_info(:observe, %{team: team} = state) when is_nil(team) do
     {:noreply, state}
   end
 
-  def handle_cast(:observe, %{name: name, team: team} = state) do
+  def handle_info(:observe, %{name: name, team: team} = state) do
     do_scan(name)
     |> Enum.filter(fn %{"team" => team_number} -> team_number == team end)
     |> Enum.sort_by(fn %{"signal" => signal} -> signal end)
@@ -72,18 +81,9 @@ defmodule FTC.Overseer.WLAN.Adapter do
 
       _ ->
         Logger.warn("Team #{team} not found in scan")
-        Process.send_after(self(), {:"$gen_cast", self(), :observe}, 1000)
+        Process.send_after(self(), :observe, 1000)
         {:noreply, %{state | team: team}}
     end
-  end
-
-  def handle_cast(:stop, %{active_pid: pid} = state) when is_pid(pid) do
-    Executor.stop(pid)
-    {:noreply, %{state | team: nil, active_pid: nil, channel: nil}}
-  end
-
-  def handle_cast(:stop, state) do
-    {:noreply, %{state | team: nil, active_pid: nil, channel: nil}}
   end
 
   ###########
