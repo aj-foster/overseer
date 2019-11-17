@@ -1,0 +1,12 @@
+#!/bin/bash
+
+ifconfig "$1" down
+iwconfig "$1" mode managed
+ifconfig "$1" up
+
+tshark -i "$1" -I -f "type mgt subtype deauth" &
+pid=$!
+while read line ; do
+  :
+done
+kill -KILL $pid

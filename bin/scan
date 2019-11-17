@@ -1,5 +1,9 @@
 #!/bin/bash
 
+ifconfig "$1" down
+iwconfig "$1" mode managed
+ifconfig "$1" up
+
 iwlist "$1" scan \
 | grep -E 'Address:|ESSID:|Channel:|Signal level=' \
 | sed -e 's/^.*Address: //' \

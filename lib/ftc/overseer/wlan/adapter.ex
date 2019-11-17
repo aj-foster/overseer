@@ -29,6 +29,11 @@ defmodule FTC.Overseer.WLAN.Adapter do
     GenServer.cast(adapter, {:observe, team, opts[:temp] || []})
   end
 
+  @spec scan(pid) :: {:ok, [map]} | :error
+  def scan(adapter) do
+    GenServer.call(adapter, :scan)
+  end
+
   @spec stop(pid) :: :ok
   def stop(adapter) do
     GenServer.cast(adapter, :stop)
@@ -44,6 +49,10 @@ defmodule FTC.Overseer.WLAN.Adapter do
     Executor.execute("iwconfig #{opts[:name]} mode monitor")
     Executor.execute("ifconfig #{opts[:name]} up")
     {:ok, %AdapterState{name: opts[:name], channel: nil, active_pid: nil}}
+  end
+
+  def handle_call(:scan, _from, %{name: _name} = state) do
+    {:reply, nil, state}
   end
 
   def handle_cast({:observe, team, _other_teams}, %{name: name} = state) do
@@ -74,8 +83,8 @@ defmodule FTC.Overseer.WLAN.Adapter do
   @scan_line ~r/^(?<address>([A-F0-9:])*) \| (?<channel>\d+) \| (?<signal>-?\d+) \| "(?<SSID>.*)"$/
   @valid_ssid ~r/DIRECT-[[:alnum:]]+-(?<team>\d+)-/i
 
-  defp do_scan(adapter) do
-    {:ok, output} = Executor.execute("./bin/scan \"#{adapter}\"")
+  defp do_scan(adapter_name) do
+    {:ok, output} = Executor.execute("./bin/scan \"#{adapter_name}\"")
 
     String.split(output, "\n", trim: true)
     |> Stream.map(fn line -> Regex.named_captures(@scan_line, line) end)
