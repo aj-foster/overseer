@@ -1,31 +1,57 @@
 #!/bin/bash
 
 # Remove pre-made SSH keys and make our own
+#
 rm /etc/ssh/ssh_host_*
 dpkg-reconfigure openssh-server
 service ssh restart
 
 # New root password
+#
 passwd
 
 # Ensure network manager doesn't affect wlan devices
+#
 cat << EOF >> /etc/NetworkManager/NetworkManager.conf
 
 [keyfile]
-unmanaged-devices=mac:b8:27:eb:51:9f:6f;mac:00:25:9c:b7:f2:3d;mac:00:25:9c:e7:de:41;mac:00:25:9c:b3:6c:73
+unmanaged-devices=mac:00:25:9c:b7:f2:3d;mac:00:25:9c:e7:de:41;mac:00:25:9c:b3:6c:73
 
 [device]
 wifi.scan-rand-mac-address=no
 EOF
 
+# Rename built-in WiFi adapter
+#
+if [ ! -f /root/Documents/config/70-persistent-net.rules ]
+then
+  BUILTIN_MAC=$(cat /sys/class/net/wlan0/address)
+
+  mkdir -p /root/Documents/config
+  cat << EOF >> /root/Documents/config/70-persistent-net-rules
+# Set the built-in wireless interface to use a different name.
+#
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="$BUILTIN_MAC", NAME="wifi0"
+EOF
+
+fi
+
+if [ ! -L /etc/udev/rules.d/70-persistent-net.rules ]
+then
+  ln -sf /root/Documents/config/70-persistent-net.rules /etc/udev/rules.d/70-persistent-net.rules
+fi
+
 # Update packages
+#
 apt update
 apt update # Yes, twice.
 apt dist-upgrade
 apt autoremove
 
 # Install Erlang for the runtime
+#
 apt install erlang=1:22.1.1+dfsg-3 elixir=1.9.1.dfsg-1
 
 # Other things
+#
 echo "set completion-ignore-case On" > ~/.inputrc
