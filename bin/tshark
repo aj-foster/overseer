@@ -1,14 +1,20 @@
 #!/bin/bash
 
 # Usage:
-#   ./bin/tshark [interface] [channel]
+#   ./bin/tshark [interface] [channel] [RC MAC address] [match] [team]
 
 ifconfig "$1" down
-iwconfig "$1" mode managed
+iwconfig "$1" mode monitor
 ifconfig "$1" up
 iwconfig "$1" channel "$2"
 
-tshark -i "$1" -I -f "type mgt subtype deauth" &
+tshark \
+  -i "$1" \
+  -I \
+  -P -w $(date +%Y-%m-%d-$4-$5-%H-%M-%S.pcapng) \
+  -f "type mgt subtype deauth" \
+  -Y "wlan.addr == $3" &
+
 pid=$!
 while read line ; do
   :
