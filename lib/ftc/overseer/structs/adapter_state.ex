@@ -1,3 +1,3 @@
 defmodule FTC.Overseer.AdapterState do
-  defstruct [:name, :channel, :active_pid, :team]
+  defstruct [:name, :channel, :active_pid, :team, :bssid]
 end
