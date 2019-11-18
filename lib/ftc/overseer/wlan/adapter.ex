@@ -73,7 +73,6 @@ defmodule FTC.Overseer.WLAN.Adapter do
     do_scan(name)
     |> Enum.filter(fn %{"team" => team_number} -> team_number == team end)
     |> Enum.sort_by(fn %{"signal" => signal} -> signal end)
-    |> IO.inspect(label: "Sorted results of scan for team #{team}")
     |> List.last()
     |> case do
       %{"channel" => channel} ->
