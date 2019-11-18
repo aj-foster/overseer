@@ -11,6 +11,7 @@ iwconfig "$1" channel "$2"
 tshark \
   -i "$1" \
   -I \
+  -Q -P \
   -f "type mgt subtype deauth" \
   -Y "wlan.addr == $3" &
 
