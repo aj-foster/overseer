@@ -1,16 +1,20 @@
 #!/bin/bash
 
-# Remove pre-made SSH keys and make our own
+# Setup a Raspberry Pi for oversight.
+# This script assumes it's running on Kali as root.
+
+# Remove pre-made SSH keys and make our own.
 #
 rm /etc/ssh/ssh_host_*
 dpkg-reconfigure openssh-server
 service ssh restart
 
-# New root password
+# Set a new root password.
 #
 passwd
 
-# Ensure network manager doesn't affect wlan devices
+# Ensure network manager doesn't affect wlan devices.
+# Replace the MAC addresses below with your wireless adapter MACs.
 #
 cat << EOF >> /etc/NetworkManager/NetworkManager.conf
 
@@ -21,7 +25,7 @@ unmanaged-devices=mac:00:25:9c:b7:f2:3d;mac:00:25:9c:e7:de:41;mac:00:25:9c:b3:6c
 wifi.scan-rand-mac-address=no
 EOF
 
-# Rename built-in WiFi adapter
+# Rename the built-in WiFi adapter. (Should be run without any other adapters plugged in.)
 #
 if [ ! -f /root/Documents/config/70-persistent-net.rules ]
 then
@@ -48,10 +52,10 @@ apt update # Yes, twice.
 apt dist-upgrade
 apt autoremove
 
-# Install Erlang for the runtime
+# Install Erlang for the runtime and Elixir for building the release.
 #
 apt install erlang=1:22.1.1+dfsg-3 elixir=1.9.1.dfsg-1
 
-# Other things
+# Personal preferences.
 #
 echo "set completion-ignore-case On" > ~/.inputrc
