@@ -94,3 +94,13 @@ RELEASE_NODE="overseer@10.0.0.3"
 
 Allowing specification of the scoring host and event code after application startup is a future
 goal.
+
+## Run
+
+Once configured, run the application using:
+
+```shell
+./bin/start
+```
+
+The application likely requires root privileges for `iwconfig` and `ifconfig` if not for `tshark`.
