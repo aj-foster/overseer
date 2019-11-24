@@ -54,6 +54,7 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
     else
       {:error, %Jason.DecodeError{}} ->
         Logger.warn("Problem decoding websocket frame: #{message}")
+        {:ok, state}
 
       :error ->
         {:ok, state}
@@ -61,6 +62,7 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
   end
 
   def handle_disconnect(_disconnect_map, state) do
+    Logger.warn("Lost connection to Scoring API websocket. Attempting reconnect...")
     {:reconnect, state}
   end
 
