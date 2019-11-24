@@ -27,6 +27,8 @@ In broad strokes, this application does the following:
 
 In the future, we can experiment with different ways of alerting and displaying information.
 
+<p align="center"><img src="https://github.com/aj-foster/overseer/blob/master/docs/console-output.png" width="400" alt="Console Screenshot"></p>
+
 ## Setup
 
 This project requires specialized hardware. Following is a broad outline of the setup process.
