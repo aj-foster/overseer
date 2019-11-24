@@ -97,7 +97,7 @@ RELEASE_NODE="overseer@10.0.0.3"
 Allowing specification of the scoring host and event code after application startup is a future
 goal.
 
-## Run
+## Usage
 
 Once configured, run the application using:
 
@@ -105,4 +105,9 @@ Once configured, run the application using:
 ./bin/start
 ```
 
-The application likely requires root privileges for `iwconfig` and `ifconfig` if not for `tshark`.
+This will start an interactive Elixir session (`iex`) along with the application. The application
+likely requires root privileges for `iwconfig` and `ifconfig` if not for `tshark`. All of the
+relevant information will be printed to the console with various logging levels. See
+`config/config.exs` to adjust the level before building the application, or run
+`Logger.configure(level: :info)` in the interactive console during runtime. The valid levels are
+`:debug`, `:info`, `:warn`, and `:error`.
