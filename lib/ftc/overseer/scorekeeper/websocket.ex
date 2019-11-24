@@ -28,7 +28,12 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
       |> Map.put(:scheme, "ws")
       |> URI.to_string()
 
-    WebSockex.start_link(url, __MODULE__, nil, Keyword.put(opts, :name, __MODULE__))
+    opts =
+      opts
+      |> Keyword.put(:name, __MODULE__)
+      |> Keyword.put(:handle_initial_conn_failure, true)
+
+    WebSockex.start_link(url, __MODULE__, nil, opts)
   end
 
   ##########
@@ -55,13 +60,8 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
     end
   end
 
-  def handle_disconnect(%{reason: {:local, reason}}, state) do
-    Logger.info("Local close with reason: #{inspect(reason)}")
-    {:ok, state}
-  end
-
-  def handle_disconnect(disconnect_map, state) do
-    super(disconnect_map, state)
+  def handle_disconnect(_disconnect_map, state) do
+    {:reconnect, state}
   end
 
   ###########
