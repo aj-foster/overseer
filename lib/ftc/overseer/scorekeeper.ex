@@ -23,6 +23,7 @@ defmodule FTC.Overseer.Scorekeeper do
 
   defp init do
     retry with: exponential_backoff() |> cap(30_000) do
+      Logger.info("Attempting to connect to Scoring API websocket...")
       Websocket.start_link()
     after
       _ -> :ok
