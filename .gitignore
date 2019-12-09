@@ -27,3 +27,6 @@ overseer-*.tar
 
 # Ignore environment configuration
 .env
+
+# Log output
+/log/

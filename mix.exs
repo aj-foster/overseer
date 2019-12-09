@@ -25,7 +25,10 @@ defmodule FTC.Overseer.MixProject do
       # Requests to scoring system
       {:httpoison, "~> 1.6"},
       {:websockex, "~> 0.4.2"},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+
+      # Logging
+      {:logger_file_backend, "~> 0.0.11"}
     ]
   end
 end
