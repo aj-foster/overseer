@@ -1,6 +1,5 @@
 defmodule FTC.Overseer.Application do
   @moduledoc false
-
   use Application
 
   @spec start(any, any) :: {:ok, pid} | {:error, any}
@@ -8,7 +7,7 @@ defmodule FTC.Overseer.Application do
     children = [
       FTC.Overseer.Executor,
       FTC.Overseer.MatchManager,
-      FTC.Overseer.Scorekeeper.Websocket,
+      FTC.Overseer.Scorekeeper,
       FTC.Overseer.WLAN
     ]
 

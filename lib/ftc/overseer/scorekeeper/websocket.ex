@@ -31,7 +31,6 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
     opts =
       opts
       |> Keyword.put(:name, __MODULE__)
-      |> Keyword.put(:handle_initial_conn_failure, true)
 
     WebSockex.start_link(url, __MODULE__, nil, opts)
   end

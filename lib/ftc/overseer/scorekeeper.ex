@@ -2,9 +2,26 @@ defmodule FTC.Overseer.Scorekeeper do
   @moduledoc """
   Interface for the FTC Scorekeeper software.
   """
+  use Retry
   require Logger
 
   alias FTC.Overseer.Match
+  alias FTC.Overseer.Scorekeeper.Websocket
+
+  @doc false
+  def start_link(_opts) do
+    Task.start_link(&init/0)
+  end
+
+  defp init do
+    retry with: exponential_backoff() |> cap(30_000) do
+      Websocket.start_link()
+    after
+      _ -> :ok
+    else
+      _ -> :ok
+    end
+  end
 
   @doc """
   Request information from the scoring API about the current active match.
