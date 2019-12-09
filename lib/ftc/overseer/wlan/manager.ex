@@ -38,13 +38,18 @@ defmodule FTC.Overseer.WLAN.Manager do
   # Helpers #
   ###########
 
-  defp list_adapters() do
-    {:ok, output} =
-      Executor.execute("iwconfig 2>/dev/null | grep 'IEEE 802.11' | cut -d' ' -f 1 | grep wlan")
+  @get_adapters "iwconfig 2>/dev/null | grep 'IEEE 802.11' | cut -d' ' -f 1 | grep wlan"
 
-    output
-    |> String.trim()
-    |> String.split(~r/\s/, trim: true)
-    |> Enum.sort()
+  defp list_adapters() do
+    case Executor.execute(@get_adapters) do
+      {:ok, output} ->
+        output
+        |> String.trim()
+        |> String.split(~r/\s/, trim: true)
+        |> Enum.sort()
+
+      _ ->
+        []
+    end
   end
 end
