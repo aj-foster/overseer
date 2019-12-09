@@ -9,6 +9,14 @@ defmodule FTC.Overseer.Scorekeeper do
   alias FTC.Overseer.Scorekeeper.Websocket
 
   @doc false
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]}
+    }
+  end
+
+  @doc false
   def start_link(_opts) do
     Task.start_link(&init/0)
   end
