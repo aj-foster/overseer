@@ -28,7 +28,10 @@ defmodule FTC.Overseer.MixProject do
       {:jason, "~> 1.1"},
 
       # Logging
-      {:logger_file_backend, "~> 0.0.11"}
+      {:logger_file_backend, "~> 0.0.11"},
+
+      # Retry and backoff logic
+      {:retry, "~> 0.13"}
     ]
   end
 end
