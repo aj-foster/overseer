@@ -7,7 +7,7 @@ defmodule FTC.Overseer.MixProject do
       version: "0.1.0",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -41,12 +41,11 @@ defmodule FTC.Overseer.MixProject do
       # Web Display
       {:phoenix, "~> 1.4.9"},
       {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_ecto, "~> 4.0"},
-      {:ecto_sql, "~> 3.1"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:gettext, "~> 0.11"},
+      {:phoenix_live_view, "~> 0.4"},
+      {:floki, ">= 0.0.0", only: :test},
       {:plug_cowboy, "~> 2.0"}
     ]
   end
