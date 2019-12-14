@@ -26,7 +26,7 @@ defmodule FTC.Overseer.Scorekeeper do
       Logger.info("Attempting to connect to Scoring API websocket...")
       Websocket.start_link()
     after
-      _ -> :ok
+      {:ok, _pid} -> Process.sleep(:infinity)
     else
       _ -> :ok
     end
