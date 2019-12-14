@@ -6,6 +6,8 @@ defmodule FTC.Overseer.MixProject do
       app: :overseer,
       version: "0.1.0",
       elixir: "~> 1.9",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -19,6 +21,9 @@ defmodule FTC.Overseer.MixProject do
     ]
   end
 
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
@@ -31,7 +36,17 @@ defmodule FTC.Overseer.MixProject do
       {:logger_file_backend, "~> 0.0.11"},
 
       # Retry and backoff logic
-      {:retry, "~> 0.13"}
+      {:retry, "~> 0.13"},
+
+      # Web Display
+      {:phoenix, "~> 1.4.9"},
+      {:phoenix_pubsub, "~> 1.1"},
+      {:postgrex, ">= 0.0.0"},
+      {:phoenix_html, "~> 2.11"},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:phoenix_live_view, "~> 0.4"},
+      {:floki, ">= 0.0.0", only: :test},
+      {:plug_cowboy, "~> 2.0"}
     ]
   end
 end
