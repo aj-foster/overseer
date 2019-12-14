@@ -9,7 +9,8 @@ defmodule FTC.Overseer.Application do
       FTC.Overseer.MatchManager,
       FTC.Overseer.Scorekeeper,
       FTC.Overseer.WLAN,
-      FTC.Display.Endpoint
+      FTC.Display.Endpoint,
+      FTC.Overseer.Scorekeeper.MockServer
     ]
 
     opts = [strategy: :one_for_one, name: FTC.Overseer.Supervisor]

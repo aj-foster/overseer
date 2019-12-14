@@ -69,7 +69,7 @@ defmodule FTC.Overseer.Scorekeeper do
   """
   @spec get_event_code() :: String.t()
   def get_event_code() do
-    Application.get_env(:overseer, :scoring_event, "")
+    Application.get_env(:overseer, :scoring_event, "test_01")
   end
 
   # Extract relevant match information.

@@ -4,6 +4,14 @@ config :overseer,
   scoring_host: "http://localhost:8382",
   scoring_event: "test_01"
 
+config :overseer, FTC.Overseer.Scorekeeper.MockServer,
+  server: false,
+  http: [:inet6, port: 8382],
+  url: [host: "localhost", port: 8382],
+  secret_key_base: "HRSGLDwsuQTLGdqZp0za5VT4roFjXDX8+n6jjnKODtrbvgJXcpXpMIJSSJJ+dtJH",
+  render_errors: [view: FTC.Display.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: FTC.Overseer.PubSub, adapter: Phoenix.PubSub.PG2]
+
 config :overseer, FTC.Display.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "HRSGLDwsuQTLGdqZp0za5VT4roFjXDX8+n6jjnKODtrbvgJXcpXpMIJSSJJ+dtJH",

@@ -1,5 +1,7 @@
 use Mix.Config
 
+config :overseer, FTC.Overseer.Scorekeeper.MockServer, server: true
+
 config :overseer, FTC.Display.Endpoint,
   http: [port: 4000],
   debug_errors: true,
