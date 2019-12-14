@@ -1,16 +1,3 @@
-defmodule FTC.Overseer.Scorekeeper.MockServer do
-  @moduledoc """
-  Provides a mock server for the scorekeeping API in testing and development.
-  """
-  use Phoenix.Endpoint, otp_app: :overseer
-
-  socket "/api/v2/stream", FTC.Overseer.Scorekeeper.MockSocket,
-    websocket: [path: "/", timeout: :infinity],
-    longpoll: false
-
-  plug FTC.Overseer.Scorekeeper.MockRouter
-end
-
 defmodule FTC.Overseer.Scorekeeper.MockRouter do
   use Plug.Router
 
@@ -64,4 +51,17 @@ defmodule FTC.Overseer.Scorekeeper.MockRouter do
   match _ do
     Conn.send_resp(conn, 404, "Route not defined")
   end
+end
+
+defmodule FTC.Overseer.Scorekeeper.MockServer do
+  @moduledoc """
+  Provides a mock server for the scorekeeping API in testing and development.
+  """
+  use Phoenix.Endpoint, otp_app: :overseer
+
+  socket "/api/v2/stream", FTC.Overseer.Scorekeeper.MockSocket,
+    websocket: [path: "/", timeout: :infinity],
+    longpoll: false
+
+  plug FTC.Overseer.Scorekeeper.MockRouter
 end

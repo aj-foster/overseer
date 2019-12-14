@@ -25,4 +25,32 @@ defmodule FTC.Overseer.Scorekeeper.MockSocket do
       {:socket_push, :text, Jason.encode!(message)}
     )
   end
+
+  @doc """
+  Broadcast a MATCH_START message for the given event.
+  """
+  @spec match_start(String.t()) :: :ok | {:error, any}
+  def match_start(event) do
+    time = :os.system_time(:millisecond)
+
+    broadcast(event, %{
+      updateTime: time,
+      updateType: "MATCH_START",
+      payload: %{number: 2, shortName: "Q2", field: 2}
+    })
+  end
+
+  @doc """
+  Broadcast a MATCH_ABORT message for the given event.
+  """
+  @spec match_abort(String.t()) :: :ok | {:error, any}
+  def match_abort(event) do
+    time = :os.system_time(:millisecond)
+
+    broadcast(event, %{
+      updateTime: time,
+      updateType: "MATCH_ABORT",
+      payload: %{number: 2, shortName: "Q2", field: 2}
+    })
+  end
 end
