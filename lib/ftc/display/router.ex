@@ -18,10 +18,7 @@ defmodule FTC.Display.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-  end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", FTC.Display do
-  #   pipe_through :api
-  # end
+    live "/status", StatusLive
+  end
 end
