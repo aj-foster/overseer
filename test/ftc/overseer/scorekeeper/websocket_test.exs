@@ -25,5 +25,21 @@ defmodule FTC.Overseer.Scorekeeper.WebsocketTest do
       MockSocket.match_start(event)
       assert_receive :start_match
     end
+
+    test "handles match abort message" do
+      event = "handle_frame_2_handles_match_abort_message"
+
+      test_pid = self()
+      abort_match = fn -> send(test_pid, :abort_match) end
+
+      Websocket.start_link(
+        name: FTC.Overseer.Scorekeeper.WebsocketTest,
+        event: event,
+        on_abort: abort_match
+      )
+
+      MockSocket.match_abort(event)
+      assert_receive :abort_match
+    end
   end
 end
