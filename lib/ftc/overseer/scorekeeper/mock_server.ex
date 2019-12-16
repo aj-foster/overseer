@@ -1,4 +1,8 @@
 defmodule FTC.Overseer.Scorekeeper.MockRouter do
+  @moduledoc false
+  #
+  # Provides a fake router for the scoring API in development and testing.
+  #
   use Plug.Router
 
   alias Plug.Conn
@@ -54,9 +58,10 @@ defmodule FTC.Overseer.Scorekeeper.MockRouter do
 end
 
 defmodule FTC.Overseer.Scorekeeper.MockServer do
-  @moduledoc """
-  Provides a mock server for the scorekeeping API in testing and development.
-  """
+  @moduledoc false
+  #
+  # Provides a mock server for the scoring API in testing and development.
+  #
   use Phoenix.Endpoint, otp_app: :overseer
 
   socket "/api/v2/stream", FTC.Overseer.Scorekeeper.MockSocket,

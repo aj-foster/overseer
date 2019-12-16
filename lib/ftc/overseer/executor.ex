@@ -8,7 +8,14 @@ defmodule FTC.Overseer.Executor do
   """
   use DynamicSupervisor
 
-  alias FTC.Overseer.Executor.{Receiver, Runner}
+  # Use mock runner and receiver in development and testing.
+  #
+  @runner if Mix.env() in [:dev, :test],
+            do: FTC.Overseer.Executor.MockRunner,
+            else: FTC.Overseer.Executor.Runner
+  @receiver if Mix.env() in [:dev, :test],
+              do: FTC.Overseer.Executor.MockReceiver,
+              else: FTC.Overseer.Executor.Receiver
 
   @doc """
   Starts a DynamicSupervisor for managing long-lived shell commands.
@@ -39,7 +46,7 @@ defmodule FTC.Overseer.Executor do
   """
   @spec execute(String.t(), Keyword.t()) :: {:ok, String.t()} | {:error, String.t(), pos_integer}
   def execute(command, opts \\ []) do
-    Runner.run(command, opts)
+    @runner.run(command, opts)
   end
 
   @doc """
@@ -64,7 +71,7 @@ defmodule FTC.Overseer.Executor do
       |> Keyword.put_new(:on_exit, fn _id, code -> code end)
       |> Keyword.put_new(:on_output, fn _id, output -> output end)
 
-    DynamicSupervisor.start_child(__MODULE__, {Receiver, opts})
+    DynamicSupervisor.start_child(__MODULE__, {@receiver, opts})
   end
 
   @doc """

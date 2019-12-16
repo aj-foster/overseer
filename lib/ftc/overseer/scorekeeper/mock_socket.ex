@@ -1,4 +1,8 @@
 defmodule FTC.Overseer.Scorekeeper.MockSocket do
+  @moduledoc false
+  #
+  # Provides a fake scoring websocket endpoint for use in development and testing.
+  #
   use Phoenix.Socket, log: :debug
 
   @doc false
