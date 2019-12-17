@@ -2,6 +2,7 @@ defmodule FTC.Overseer.MatchManager do
   use GenServer
   require Logger
 
+  alias FTC.Display.Status
   alias FTC.Overseer.Match
   alias FTC.Overseer.Scorekeeper
   alias FTC.Overseer.WLAN
@@ -48,6 +49,7 @@ defmodule FTC.Overseer.MatchManager do
 
   def handle_cast({:start, match_name}, _state) do
     Logger.info("Match start: #{match_name}")
+    Status.start_match(match_name)
     Process.send_after(self(), :stop, @match_length_ms)
 
     case Scorekeeper.get_active_match() do
@@ -76,6 +78,7 @@ defmodule FTC.Overseer.MatchManager do
 
   def handle_info(:stop, %Match{name: name}) do
     Logger.info("Match end: #{name}")
+    Status.stop_match()
 
     WLAN.stop_all()
     {:noreply, :inactive}
