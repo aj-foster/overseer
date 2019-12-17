@@ -17,8 +17,6 @@ defmodule FTC.Display.Router do
   scope "/", FTC.Display do
     pipe_through :browser
 
-    get "/", PageController, :index
-
-    live "/status", StatusLive
+    live "/", StatusLive
   end
 end

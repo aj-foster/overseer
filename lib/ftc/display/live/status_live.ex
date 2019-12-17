@@ -2,10 +2,7 @@ defmodule FTC.Display.StatusLive do
   use Phoenix.LiveView
 
   def render(assigns) do
-    ~L"""
-    <p>Status: <%= @status %></p>
-    <p>Match: <%= @match %></p>
-    """
+    Phoenix.View.render(FTC.Display.PageView, "index.html", assigns)
   end
 
   def mount(_, socket) do
@@ -15,6 +12,7 @@ defmodule FTC.Display.StatusLive do
       socket
       |> assign(:status, "Ready")
       |> assign(:match, "??")
+      |> assign(:teams, [])
 
     {:ok, socket}
   end
