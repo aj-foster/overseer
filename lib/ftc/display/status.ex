@@ -14,10 +14,26 @@ defmodule FTC.Display.Status do
   end
 
   @doc """
+  Set which teams are currently playing.
+  """
+  @spec set_teams([pos_integer]) :: :ok | {:error, term}
+  def set_teams(teams) when length(teams) == 4 do
+    PubSub.broadcast(PS, "status", {:teams, teams})
+  end
+
+  @doc """
   Indicate that the match has ended.
   """
   @spec stop_match() :: :ok | {:error, term}
   def stop_match do
     PubSub.broadcast(PS, "status", :stop)
+  end
+
+  @doc """
+  Indicate that the match was aborted.
+  """
+  @spec abort_match() :: :ok | {:error, term}
+  def abort_match do
+    PubSub.broadcast(PS, "status", :abort)
   end
 end

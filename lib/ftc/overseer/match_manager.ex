@@ -54,12 +54,14 @@ defmodule FTC.Overseer.MatchManager do
 
     case Scorekeeper.get_active_match() do
       {:ok, %Match{name: ^match_name, teams: teams} = match} ->
+        Status.set_teams(teams)
         WLAN.observe(teams)
         {:noreply, match}
 
       {:ok, %Match{name: name, teams: teams} = match} ->
         Logger.error("Expected match #{match_name} but current active match is #{name}")
 
+        Status.set_teams(teams)
         WLAN.observe(teams)
         {:noreply, match}
 
@@ -71,6 +73,7 @@ defmodule FTC.Overseer.MatchManager do
 
   def handle_cast(:abort, %Match{name: name}) do
     Logger.info("Match abort: #{name}")
+    Status.abort_match()
 
     WLAN.stop_all()
     {:noreply, :inactive}

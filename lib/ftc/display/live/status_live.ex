@@ -33,4 +33,20 @@ defmodule FTC.Display.StatusLive do
 
     {:noreply, socket}
   end
+
+  def handle_info(:abort, socket) do
+    socket =
+      socket
+      |> assign(:status, "Match aborted")
+
+    {:noreply, socket}
+  end
+
+  def handle_info({:teams, teams}, socket) do
+    socket =
+      socket
+      |> assign(:teams, teams)
+
+    {:noreply, socket}
+  end
 end
