@@ -1,2 +1,46 @@
 @import "./phoenix.css";
 @import "../../deps/phoenix_live_view/assets/css/live_view.css";
+
+body {
+  background-color: #eeeeee;
+}
+
+.container {
+  background-color: #ffffff;
+  border-radius: 0.25em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  padding: 1em;
+}
+
+.match {
+  text-align: center;
+}
+
+.teams {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.team {
+  flex-basis: 35%;
+  flex-grow: 1;
+  font-size: 3em;
+  margin: 0.5rem;
+  padding: 1em 0;
+  text-align: center;
+}
+
+.searching {
+  background: rgb(244, 238, 221);
+  box-shadow: 0px 0px 4px rgb(244, 238, 221);
+}
+
+.tracking {
+  background: rgb(221, 244, 221);
+  box-shadow: 0px 0px 4px rgb(221, 244, 221);
+}
+
+.problem {
+  background: rgb(244, 221, 221);
+  box-shadow: 0px 0px 4px rgb(244, 221, 221);
+}
