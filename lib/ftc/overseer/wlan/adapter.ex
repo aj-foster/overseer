@@ -2,6 +2,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
   use GenServer
   require Logger
 
+  alias FTC.Display.Status
   alias FTC.Overseer.AdapterState
   alias FTC.Overseer.Executor
 
@@ -110,6 +111,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
          ) do
       {:ok, pid} ->
         Logger.debug("Started tshark for team #{team}")
+        Status.tracking_team(team)
         {:noreply, %{state | active_pid: pid}}
 
       {:error, reason} ->
@@ -180,6 +182,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
     cond do
       Regex.match?(~r/^\d+ /, output) ->
         Logger.warn("Observed deauth packet for team #{team}")
+        Status.problem_team(team)
 
       true ->
         nil

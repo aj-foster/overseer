@@ -36,4 +36,20 @@ defmodule FTC.Display.Status do
   def abort_match do
     PubSub.broadcast(PS, "status", :abort)
   end
+
+  @doc """
+  Indicate that the given team's network has been found.
+  """
+  @spec tracking_team(pos_integer) :: :ok | {:error, term}
+  def tracking_team(team) do
+    PubSub.broadcast(PS, "status", {:tracking, team})
+  end
+
+  @doc """
+  Indicate problematic activity with the given team.
+  """
+  @spec problem_team(pos_integer) :: :ok | {:error, term}
+  def problem_team(team) do
+    PubSub.broadcast(PS, "status", {:problem, team})
+  end
 end
