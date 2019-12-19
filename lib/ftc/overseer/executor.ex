@@ -62,7 +62,7 @@ defmodule FTC.Overseer.Executor do
     * `:on_output`: (optional) Function to run when the spawn process produces output. The function
       should accept two arguments: the `id` of the spawned process and the output as a string.
   """
-  @spec spawn(String.t(), String.t(), Keyword.t()) :: {:ok, pid} | {:error, any}
+  @spec spawn(String.t(), integer, Keyword.t()) :: {:ok, pid} | {:error, any}
   def spawn(command, id, opts \\ []) do
     opts =
       opts

@@ -13,12 +13,12 @@ defmodule FTC.Overseer.Executor.Receiver do
 
   alias FTC.Overseer.Executor.Runner
 
-  @type on_exit() :: (String.t(), non_neg_integer() -> any)
-  @type on_output() :: (String.t(), String.t() -> any)
+  @type on_exit() :: (integer, non_neg_integer() -> any)
+  @type on_output() :: (integer, String.t() -> any)
 
   @type option ::
           {:command, String.t()}
-          | {:id, String.t()}
+          | {:id, integer}
           | {:on_exit, on_exit()}
           | {:on_output, on_output()}
           | Runner.option()
