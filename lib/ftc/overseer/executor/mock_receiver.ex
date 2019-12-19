@@ -6,6 +6,7 @@ defmodule FTC.Overseer.Executor.MockReceiver do
   use GenServer, restart: :temporary
   require Logger
 
+  alias FTC.Overseer.Executor
   alias FTC.Overseer.Executor.Runner
 
   @type on_exit() :: (integer, non_neg_integer() -> any)
@@ -24,6 +25,18 @@ defmodule FTC.Overseer.Executor.MockReceiver do
   @spec start_link(opts) :: {:ok, pid} | :ignore | {:error, any}
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, [])
+  end
+
+  @doc """
+  Produce a fake deauthentication notice for the first tshark process in the executor list.
+  """
+  @spec deauth :: :ok
+  def deauth do
+    {_id, pid, _type, _modules} =
+      DynamicSupervisor.which_children(Executor)
+      |> Enum.random()
+
+    GenServer.call(pid, :deauth)
   end
 
   @doc false
