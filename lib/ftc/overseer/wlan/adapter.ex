@@ -3,7 +3,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
   require Logger
 
   alias FTC.Display.Status
-  alias FTC.Overseer.AdapterState
+  alias FTC.Overseer.Adapter.State
   alias FTC.Overseer.Executor
 
   ##########
@@ -53,14 +53,14 @@ defmodule FTC.Overseer.WLAN.Adapter do
   ##########
 
   @doc false
-  @spec init(Keyword.t()) :: {:ok, AdapterState.t()}
+  @spec init(Keyword.t()) :: {:ok, State.t()}
   def init(opts) do
-    {:ok, %AdapterState{name: opts[:name], channel: nil, active_pid: nil}}
+    {:ok, %State{name: opts[:name], channel: nil, active_pid: nil}}
   end
 
   @doc false
-  @spec handle_cast({:start, pos_integer, [pos_integer]} | :stop, AdapterState.t()) ::
-          {:noreply, AdapterState.t()}
+  @spec handle_cast({:start, pos_integer, [pos_integer]} | :stop, State.t()) ::
+          {:noreply, State.t()}
   def handle_cast({:start, team, _other_teams}, state) do
     Process.send(self(), :observe, [])
     {:noreply, %{state | team: team}}
@@ -76,7 +76,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
   end
 
   @doc false
-  @spec handle_info(:observe | :tshark, AdapterState.t()) :: {:noreply, AdapterState.t()}
+  @spec handle_info(:observe | :tshark, State.t()) :: {:noreply, State.t()}
   def handle_info(:observe, %{team: team} = state) when is_nil(team) do
     {:noreply, state}
   end
