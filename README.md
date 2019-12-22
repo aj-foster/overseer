@@ -25,7 +25,7 @@ In broad strokes, this application does the following:
 - Actively alerts if problematic traffic is detected
 - Stops all scans and `tshark` when the match ends
 
-In the future, we can experiment with different ways of alerting and displaying information.
+<p align="center"><img src="https://github.com/aj-foster/overseer/blob/master/docs/display-output.png" width="400" alt="Display Screenshot"></p>
 
 <p align="center"><img src="https://github.com/aj-foster/overseer/blob/master/docs/console-output.png" width="400" alt="Console Screenshot"></p>
 
@@ -111,3 +111,5 @@ relevant information will be printed to the console with various logging levels.
 `config/config.exs` to adjust the level before building the application, or run
 `Logger.configure(level: :info)` in the interactive console during runtime. The valid levels are
 `:debug`, `:info`, `:warn`, and `:error`.
+
+Access the web display at port 4000 unless a different `PORT` environment variable is specified.
