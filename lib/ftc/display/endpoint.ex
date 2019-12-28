@@ -1,7 +1,7 @@
 defmodule FTC.Display.Endpoint do
   use Phoenix.Endpoint, otp_app: :overseer
 
-  socket "/live", Phoenix.LiveView.Socket
+  socket "/live", Phoenix.LiveView.Socket, websocket: [check_origin: false]
 
   socket "/socket", FTC.Display.UserSocket,
     websocket: [check_origin: false],
