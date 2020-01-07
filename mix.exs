@@ -1,15 +1,24 @@
 defmodule FTC.Overseer.MixProject do
   use Mix.Project
 
+  @app :overseer
+  @version "0.1.0"
+  @all_targets [:nerves_system_overseer]
+
   def project do
     [
-      app: :overseer,
-      version: "0.1.0",
+      app: @app,
+      version: @version,
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
+      aliases: [loadconfig: [&bootstrap/1]],
+      archives: [nerves_bootstrap: "~> 1.6"],
+      build_embedded: true,
       compilers: [:phoenix] ++ Mix.compilers(),
-      start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      preferred_cli_target: [run: :host, test: :host],
+      releases: [{@app, release()}],
+      start_permanent: Mix.env() == :prod
     ]
   end
 
@@ -21,6 +30,14 @@ defmodule FTC.Overseer.MixProject do
     ]
   end
 
+  # Starting nerves_bootstrap adds the required aliases to Mix.Project.config()
+  # Aliases are only added if MIX_TARGET is set.
+  def bootstrap(args) do
+    Application.start(:nerves_bootstrap)
+    Mix.Task.run("loadconfig", args)
+  end
+
+  # Additional files to compile during testing.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
@@ -46,7 +63,36 @@ defmodule FTC.Overseer.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.4"},
       {:floki, ">= 0.0.0", only: :test},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+
+      # Nerves (all targets)
+      {:nerves, "~> 1.5.0", runtime: false},
+      {:shoehorn, "~> 0.6"},
+      {:ring_logger, "~> 0.6"},
+      {:toolshed, "~> 0.2"},
+      {:nerves_runtime_shell, "~> 0.1.0"},
+
+      # Nerves (all targets except :host)
+      {:nerves_runtime, "~> 0.6", targets: @all_targets},
+      {:nerves_init_gadget, "~> 0.4", targets: @all_targets},
+
+      # Nerves (specific targets)
+      {:nerves_system_x86_64, "~> 1.8", runtime: false, targets: :x86_64},
+      {:nerves_system_overseer,
+       path: "../nerves_system_overseer",
+       runtime: false,
+       targets: :nerves_system_overseer,
+       nerves: [compile: true]}
+    ]
+  end
+
+  def release do
+    [
+      overwrite: true,
+      cookie: "#{@app}_cookie",
+      include_erts: &Nerves.Release.erts/0,
+      steps: [&Nerves.Release.init/1, :assemble],
+      strip_beams: Mix.env() == :prod
     ]
   end
 end
