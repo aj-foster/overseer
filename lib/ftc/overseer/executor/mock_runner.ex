@@ -24,7 +24,7 @@ defmodule FTC.Overseer.Executor.MockRunner do
      """}
   end
 
-  def run("./bin/scan" <> _, _opts) do
+  def run("sh ./bin/scan" <> _, _opts) do
     {:ok,
      """
      00:00:00:00:00:01 | 1 | -40 | "DIRECT-AA-1-RC"
