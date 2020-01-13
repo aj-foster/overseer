@@ -1,5 +1,9 @@
 use Mix.Config
 
+config :overseer,
+  scoring_host: nil,
+  scoring_event: nil
+
 config :overseer, FTC.Display.Endpoint,
   server: true,
   http: [:inet6, port: 4000],

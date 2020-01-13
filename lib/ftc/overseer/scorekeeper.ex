@@ -22,8 +22,9 @@ defmodule FTC.Overseer.Scorekeeper do
   end
 
   defp init do
+    Logger.info("Starting websocket connection manager")
+
     retry with: exponential_backoff() |> cap(30_000) do
-      Logger.info("Attempting to connect to Scoring API websocket...")
       Websocket.start_link()
     after
       {:ok, _pid} -> Process.sleep(:infinity)
@@ -59,17 +60,17 @@ defmodule FTC.Overseer.Scorekeeper do
   @doc """
   Get hostname (with no endpoint) of the scoring system.
   """
-  @spec get_api_host() :: String.t()
+  @spec get_api_host() :: String.t() | nil
   def get_api_host() do
-    Application.get_env(:overseer, :scoring_host, "http://localhost:8382")
+    Application.get_env(:overseer, :scoring_host)
   end
 
   @doc """
   Get the configured event code.
   """
-  @spec get_event_code() :: String.t()
+  @spec get_event_code() :: String.t() | nil
   def get_event_code() do
-    Application.get_env(:overseer, :scoring_event, "test_01")
+    Application.get_env(:overseer, :scoring_event)
   end
 
   # Extract relevant match information.
