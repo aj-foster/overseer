@@ -36,15 +36,10 @@ This project requires specialized hardware. Following is a broad outline of the 
 ### Raspberry Pi
 
 This software was tested using a Raspberry Pi 3 B+. I recommend avoiding the Raspberry Pi 4 due to
-potential wireless interference by the USB 3.0 ports. Equivalent Pi units with four USB ports will
-also work.
+potential wireless interference by the USB 3.0 ports. Equivalent Pi units with four USB ports can
+work with a modified firmware image.
 
-Because this project relies upon `tshark`, a natural choice for the Pi's operating system might be
-[Kali Linux](https://docs.kali.org/kali-on-arm/install-kali-linux-arm-raspberry-pi). This is not
-strictly necessary, however. Other Debian-based operating systems are likely to work once `tshark`
-is installed. Ensure that `tshark`, `ifconfig`, and `iwconfig` binaries are available.
-
-Once an operating system has been flashed to the Pi's SD card, see `bin/setup` for additional setup.
+See the **Software** section below for more information about the firmware to use on the Pi.
 
 ### Wireless Adapters
 
@@ -55,61 +50,36 @@ playing in a match. Each adapter should have the following specs:
 - Monitor mode, for looking at traffic not sent directly to the adapter
 
 In testing, I used four Cisco/Linksys WUSB600N v2 adapters. Note that other versions may not have
-monitor mode capability.
+monitor mode capability. **Note**: other adapters may require a modification of the firmware to
+include additional drivers.
 
-Because of the size of most adapters, you will likely want several short USB extension cables.
+Because of the size of most adapters, you will likely want several short USB extension cables or a
+USB hub with sufficient space between ports.
 
 ### Software
 
-This project is written in the Elixir language. As part of the Raspberry Pi setup, you should have
-selected versions of Elixir and Erlang installed. This will allow you to build the project and run
-it on the Pi. (Note that the project must be built on the same OS/arch as it will be run.)
-
-After cloning the project onto the Pi, it can be built using:
-
-```shell
-./bin/build
-```
-
-## Configuration
-
-The application uses several environment variables to instruct its operation. These can be specified
-in a `.env` file at the base of the project. Below is an example, annotated file:
-
-```shell
-# Event-specific configuration
-
-# Location of the scoring computer
-SCORING_HOST="http://10.0.0.2:8080"
-# Event code for the current event
-SCORING_EVENT="test_01"
-
-# Set these values if you plan to connect to the application from another Erlang node
-
-# Shared secret for node-to-node connections
-ERLANG_COOKIE="replace-me"
-# Enabling connections from the outside world
-RELEASE_DISTRIBUTION="name"
-# Name of the current node (replace IP address as appropriate)
-RELEASE_NODE="overseer@10.0.0.3"
-```
-
-Allowing specification of the scoring host and event code after application startup is a future
-goal.
+This software is written in the Elixir language and utilizes the Nerves library to create a
+bootable firmware for the Raspberry Pi. Firmware images can be downloaded from the GitHub releases
+page. Burn it directly to an SD card using `dd` or a similar utility (instructions omitted — be
+careful when writing to block devices!).
 
 ## Usage
 
-Once configured, run the application using:
+**Startup**: The application will automatically boot when the Raspberry Pi is powered up. A standard
+keyboard and monitor can be used to interact with an interactive Elixir console. (Press enter to see
+the prompt if log messages are obscuring it.)
 
-```shell
-./bin/start
+**Network**: The application will start the Pi's ethernet interface with DHCP enabled.
+
+**Adapters**: The application will utilize any wireless adapters available during startup.
+
+**Scoring API**: After application startup, we can configure the location (host) of the scoring API
+and the current event code using the following in the interactive Elixir console:
+
+```elixir
+FTC.Overseer.Scorekeeper.set_api_host("http://10.0.0.2:8080")  # Scoring host address
+FTC.Overseer.Scorekeeper.set_event_code("2019flm4")  # Scoring event code
 ```
 
-This will start an interactive Elixir session (`iex`) along with the application. The application
-likely requires root privileges for `iwconfig` and `ifconfig` if not for `tshark`. All of the
-relevant information will be printed to the console with various logging levels. See
-`config/config.exs` to adjust the level before building the application, or run
-`Logger.configure(level: :info)` in the interactive console during runtime. The valid levels are
-`:debug`, `:info`, `:warn`, and `:error`.
-
-Access the web display at port 4000 unless a different `PORT` environment variable is specified.
+**Web interface**: Access the web interface of the application by going to port 4000 of the Pi's
+IP address, i.e. `http://10.0.0.3:4000`.
