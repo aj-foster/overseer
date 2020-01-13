@@ -44,3 +44,5 @@ npm-debug.log
 
 # Built firmware
 firmware.out
+*.fw
+*.fw.zip
