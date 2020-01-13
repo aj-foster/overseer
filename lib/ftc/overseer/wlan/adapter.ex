@@ -6,6 +6,8 @@ defmodule FTC.Overseer.WLAN.Adapter do
   alias FTC.Overseer.Adapter.State
   alias FTC.Overseer.Executor
 
+  @typep opts :: [{:name, String.t()}]
+
   ##########
   # Client #
   ##########
@@ -17,7 +19,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
 
     * `:name`: (**required** string) Name of the interface, i.e. `"wlan0"`.
   """
-  @spec start_link(Keyword.t()) :: {:ok, pid} | :ignore | {:error, any}
+  @spec start_link(opts) :: {:ok, pid} | :ignore | {:error, any}
   def start_link(opts) do
     name = opts[:name] || raise ArgumentError, "Name required for WLAN adapter"
 
@@ -53,7 +55,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
   ##########
 
   @doc false
-  @spec init(Keyword.t()) :: {:ok, State.t()}
+  @spec init(opts) :: {:ok, State.t()}
   def init(opts) do
     {:ok, %State{name: opts[:name], channel: nil, active_pid: nil}}
   end

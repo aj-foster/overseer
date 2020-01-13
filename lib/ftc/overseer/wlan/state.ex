@@ -7,11 +7,11 @@ defmodule FTC.Overseer.Adapter.State do
   State of a wireless adapter and its driving process.
   """
   @type t :: %__MODULE__{
-          active_pid: pid,
-          bssid: String.t(),
-          channel: pos_integer,
+          active_pid: pid | nil,
+          bssid: String.t() | nil,
+          channel: pos_integer | nil,
           name: String.t(),
-          team: pos_integer
+          team: pos_integer | nil
         }
   defstruct [:name, :channel, :active_pid, :team, :bssid]
 end
