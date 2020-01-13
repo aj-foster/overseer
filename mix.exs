@@ -79,7 +79,8 @@ defmodule FTC.Overseer.MixProject do
       # Nerves (specific targets)
       {:nerves_system_x86_64, "~> 1.8", runtime: false, targets: :x86_64},
       {:nerves_system_overseer,
-       path: "../nerves_system_overseer",
+       git: "https://github.com/aj-foster/nerves_system_overseer.git",
+       tag: "0.1.0",
        runtime: false,
        targets: :nerves_system_overseer,
        nerves: [compile: true]}
