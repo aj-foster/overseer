@@ -36,22 +36,33 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
   def start_link(opts \\ []) do
     host = Scorekeeper.get_api_host()
     event = opts[:event] || Scorekeeper.get_event_code()
-    endpoint = "/api/v2/stream/?code=#{event}"
 
-    url =
-      URI.merge(host, endpoint)
-      |> Map.put(:scheme, "ws")
-      |> URI.to_string()
+    case {host, event} do
+      {nil, _} ->
+        {:error, "Scoring host not set"}
 
-    opts =
-      opts
-      |> Keyword.put_new(:name, __MODULE__)
-      |> Keyword.put_new(:on_abort, &MatchManager.abort_match/0)
-      |> Keyword.put_new(:on_start, &MatchManager.start_match/1)
+      {_, nil} ->
+        {:error, "Scoring event code not set"}
 
-    websocket_opts = Keyword.drop(opts, [:event, :on_abort, :on_start])
+      {host, event} ->
+        endpoint = "/api/v2/stream/?code=#{event}"
 
-    WebSockex.start_link(url, __MODULE__, opts, websocket_opts)
+        url =
+          URI.merge(host, endpoint)
+          |> Map.put(:scheme, "ws")
+          |> URI.to_string()
+
+        opts =
+          opts
+          |> Keyword.put_new(:name, __MODULE__)
+          |> Keyword.put_new(:on_abort, &MatchManager.abort_match/0)
+          |> Keyword.put_new(:on_start, &MatchManager.start_match/1)
+
+        websocket_opts = Keyword.drop(opts, [:event, :on_abort, :on_start])
+
+        Logger.info("Attempting to connect to Scoring API websocket...")
+        WebSockex.start_link(url, __MODULE__, opts, websocket_opts)
+    end
   end
 
   ##########

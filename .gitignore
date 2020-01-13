@@ -41,3 +41,6 @@ npm-debug.log
 
 # Log output
 /log/
+
+# Built firmware
+firmware.out

@@ -6,6 +6,8 @@ defmodule FTC.Overseer.WLAN.Adapter do
   alias FTC.Overseer.Adapter.State
   alias FTC.Overseer.Executor
 
+  @typep opts :: [{:name, String.t()}]
+
   ##########
   # Client #
   ##########
@@ -17,7 +19,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
 
     * `:name`: (**required** string) Name of the interface, i.e. `"wlan0"`.
   """
-  @spec start_link(Keyword.t()) :: {:ok, pid} | :ignore | {:error, any}
+  @spec start_link(opts) :: {:ok, pid} | :ignore | {:error, any}
   def start_link(opts) do
     name = opts[:name] || raise ArgumentError, "Name required for WLAN adapter"
 
@@ -53,7 +55,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
   ##########
 
   @doc false
-  @spec init(Keyword.t()) :: {:ok, State.t()}
+  @spec init(opts) :: {:ok, State.t()}
   def init(opts) do
     {:ok, %State{name: opts[:name], channel: nil, active_pid: nil}}
   end
@@ -106,7 +108,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
   end
 
   def handle_info(:tshark, %{name: name, team: team, channel: channel, bssid: bssid} = state) do
-    case Executor.spawn("./bin/tshark #{name} #{channel} #{bssid}", team,
+    case Executor.spawn("sh ./bin/tshark #{name} #{channel} #{bssid}", team,
            on_output: &process_tshark_output/2
          ) do
       {:ok, pid} ->
@@ -131,7 +133,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
   #
   @spec do_scan(String.t()) :: [map]
   defp do_scan(adapter_name) do
-    case Executor.execute("./bin/scan \"#{adapter_name}\"") do
+    case Executor.execute("sh ./bin/scan \"#{adapter_name}\"") do
       {:ok, output} -> process_scan_output(output)
       {:error, _output, _code} -> []
     end

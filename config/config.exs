@@ -1,8 +1,11 @@
 use Mix.Config
 
+# Overseer
+
 config :overseer,
   scoring_host: "http://localhost:8382",
-  scoring_event: "test_01"
+  scoring_event: "test_01",
+  target: Mix.target()
 
 config :overseer, FTC.Overseer.Scorekeeper.MockServer,
   server: false,
@@ -21,12 +24,30 @@ config :overseer, FTC.Display.Endpoint,
     signing_salt: "HRSGLDwsuQTLGdqZp0za5VT4roFjXDX8+n6jjnKODtrbvgJXcpXpMIJSSJJ+dtJH"
   ]
 
+# Logger
+
 config :logger, level: :debug
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+# Phoenix
+
 config :phoenix, :json_library, Jason
 
+# Nerves
+
+config :nerves, :firmware, rootfs_overlay: "rootfs_overlay"
+
+config :shoehorn,
+  init: [:nerves_runtime, :nerves_init_gadget],
+  app: Mix.Project.config()[:app]
+
+# Environment-specific configuration
+
 import_config "#{Mix.env()}.exs"
+
+if Mix.target() != :host do
+  import_config "target.exs"
+end
