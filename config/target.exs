@@ -31,7 +31,8 @@ config :nerves_init_gadget,
   address_method: :dhcp,
   mdns_domain: nil,
   node_name: nil,
-  node_host: :dhcp
+  node_host: :dhcp,
+  ssh_console_port: nil
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
