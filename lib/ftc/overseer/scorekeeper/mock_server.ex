@@ -24,30 +24,49 @@ defmodule FTC.Overseer.Scorekeeper.MockRouter do
     time = :os.system_time(:millisecond)
 
     response =
-      Jason.encode!(%{
-        matches: [
-          %{
-            matchName: "Q1",
-            matchNumber: 1,
-            field: 1,
-            red: %{team1: 1, team2: 2, isTeam1Surrogate: false, isTeam2Surrogate: false},
-            blue: %{team1: 3, team2: 4, isTeam1Surrogate: false, isTeam2Surrogate: false},
-            finished: false,
-            matchState: "REVIEW",
-            time: time
-          },
-          %{
-            matchName: "Q2",
-            matchNumber: 2,
-            field: 2,
-            red: %{team1: 5, team2: 6, isTeam1Surrogate: false, isTeam2Surrogate: false},
-            blue: %{team1: 7, team2: 8, isTeam1Surrogate: false, isTeam2Surrogate: false},
-            finished: false,
-            matchState: "AUTO",
-            time: time
-          }
-        ]
-      })
+      case event_code do
+        "elim_test" ->
+          Jason.encode!(%{
+            matches: [
+              %{
+                matchName: "SF1-1",
+                matchNumber: 1,
+                field: 1,
+                red: %{captain: 1, dq: false, pick1: -1, pick2: 2, seed: 1},
+                blue: %{captain: 3, dq: false, pick1: -1, pick2: -1, seed: 4},
+                finished: false,
+                matchState: "AUTO",
+                time: time
+              }
+            ]
+          })
+
+        _ ->
+          Jason.encode!(%{
+            matches: [
+              %{
+                matchName: "Q1",
+                matchNumber: 1,
+                field: 1,
+                red: %{team1: 1, team2: 2, isTeam1Surrogate: false, isTeam2Surrogate: false},
+                blue: %{team1: 3, team2: 4, isTeam1Surrogate: false, isTeam2Surrogate: false},
+                finished: false,
+                matchState: "REVIEW",
+                time: time
+              },
+              %{
+                matchName: "Q2",
+                matchNumber: 2,
+                field: 2,
+                red: %{team1: 5, team2: 6, isTeam1Surrogate: false, isTeam2Surrogate: false},
+                blue: %{team1: 7, team2: 8, isTeam1Surrogate: false, isTeam2Surrogate: false},
+                finished: false,
+                matchState: "AUTO",
+                time: time
+              }
+            ]
+          })
+      end
 
     Conn.send_resp(conn, 200, response)
   end

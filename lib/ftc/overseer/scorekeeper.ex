@@ -113,8 +113,7 @@ defmodule FTC.Overseer.Scorekeeper do
     with %{"matches" => matches} <- data,
          [match] <- filter_old_matches(matches),
          %{"field" => field, "matchName" => name} <- match,
-         %{"blue" => %{"team1" => blue1, "team2" => blue2}} <- match,
-         %{"red" => %{"team1" => red1, "team2" => red2}} <- match do
+         [blue1, blue2, red1, red2] <- parse_teams(match) do
       {:ok,
        %Match{
          name: name,
@@ -133,4 +132,43 @@ defmodule FTC.Overseer.Scorekeeper do
     matches
     |> Enum.reject(fn %{"matchState" => state} -> state == "REVIEW" end)
   end
+
+  # Get teams from the match information. Note, could be an elimination match with 2/3 alliance
+  # teams present.
+  #
+  defp parse_teams(%{
+         "blue" => %{"team1" => blue1, "team2" => blue2},
+         "red" => %{"team1" => red1, "team2" => red2}
+       }) do
+    [blue1, blue2, red1, red2]
+  end
+
+  defp parse_teams(%{
+         "blue" => %{"captain" => maybe_blue1, "pick1" => maybe_blue2, "pick2" => maybe_blue3},
+         "red" => %{"captain" => maybe_red1, "pick1" => maybe_red2, "pick2" => maybe_red3}
+       }) do
+    [blue1, blue2] =
+      [maybe_blue1, maybe_blue2, maybe_blue3]
+      |> Enum.reject(&(&1 == -1))
+      |> case do
+        [a, b, _c] -> [a, b]
+        [a, b] -> [a, b]
+        [a] -> [a, -1]
+        [] -> [-1, -1]
+      end
+
+    [red1, red2] =
+      [maybe_red1, maybe_red2, maybe_red3]
+      |> Enum.reject(&(&1 == -1))
+      |> case do
+        [a, b, _c] -> [a, b]
+        [a, b] -> [a, b]
+        [a] -> [a, -1]
+        [] -> [-1, -1]
+      end
+
+    [blue1, blue2, red1, red2]
+  end
+
+  defp parse_teams(match), do: match
 end
