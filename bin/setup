@@ -57,6 +57,10 @@ apt autoremove
 apt install erlang=1:22.1.1+dfsg-3 elixir=1.9.1.dfsg-1 nodejs npm
 apt-mark hold erlang elixir nodejs npm
 
+# Install nerves bootstrap command.
+#
+mix archive.install hex nerves_bootstrap
+
 # Personal preferences.
 #
 echo "set completion-ignore-case On" > ~/.inputrc
