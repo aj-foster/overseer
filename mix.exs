@@ -3,6 +3,7 @@ defmodule FTC.Overseer.MixProject do
 
   @app :overseer
   @version "0.1.0"
+  @target System.get_env("MIX_TARGET", "host")
   @all_targets [:nerves_system_overseer]
 
   def project do
@@ -74,10 +75,14 @@ defmodule FTC.Overseer.MixProject do
 
       # Nerves (all targets except :host)
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
-      {:nerves_init_gadget, "~> 0.4", targets: @all_targets},
+      {:nerves_init_gadget, "~> 0.4", targets: @all_targets}
+    ] ++ system_deps(@target)
+  end
 
-      # Nerves (specific targets)
-      {:nerves_system_x86_64, "~> 1.8", runtime: false, targets: :x86_64},
+  def system_deps("host"), do: []
+
+  def system_deps(_target) do
+    [
       {:nerves_system_overseer,
        git: "https://github.com/aj-foster/nerves_system_overseer.git",
        tag: "0.1.0",

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export MIX_ENV=prod
+export MIX_TARGET=host
 
 mix local.hex --force
 mix local.rebar --force
