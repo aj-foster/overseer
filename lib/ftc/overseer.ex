@@ -1,18 +1,15 @@
 defmodule FTC.Overseer do
   @moduledoc """
-  Documentation for FTC.Overseer.
+  Provides convenience functions for administering the Overseer application.
   """
+
+  defdelegate set_api_host(host), to: FTC.Overseer.Scorekeeper
+  defdelegate set_event_code(code), to: FTC.Overseer.Scorekeeper
 
   @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> FTC.Overseer.hello()
-      :world
-
+  Stop the application.
   """
-  def hello do
-    :world
+  def shutdown do
+    :init.stop()
   end
 end
