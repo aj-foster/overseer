@@ -18,7 +18,7 @@ defmodule FTC.Overseer.MixProject do
       compilers: [:phoenix] ++ Mix.compilers(),
       deps: deps(),
       preferred_cli_target: [run: :host, test: :host],
-      releases: [{@app, release()}],
+      releases: [{@app, release(@target)}],
       start_permanent: Mix.env() == :prod
     ]
   end
@@ -27,9 +27,12 @@ defmodule FTC.Overseer.MixProject do
   def application do
     [
       extra_applications: [:logger, :runtime_tools],
-      mod: {FTC.Overseer.Application, []}
+      mod: {FTC.Overseer.Application, startup_opts(@target)}
     ]
   end
+
+  def startup_opts("host"), do: [console: false]
+  def startup_opts(_target), do: []
 
   # Starting nerves_bootstrap adds the required aliases to Mix.Project.config()
   # Aliases are only added if MIX_TARGET is set.
@@ -92,7 +95,9 @@ defmodule FTC.Overseer.MixProject do
     ]
   end
 
-  def release do
+  def release("host"), do: []
+
+  def release(_target) do
     [
       overwrite: true,
       cookie: "#{@app}_cookie",
