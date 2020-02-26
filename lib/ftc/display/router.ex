@@ -18,5 +18,8 @@ defmodule FTC.Display.Router do
     pipe_through :browser
 
     live "/", StatusLive
+
+    get "/settings", SettingsController, :index
+    post "/settings", SettingsController, :update
   end
 end

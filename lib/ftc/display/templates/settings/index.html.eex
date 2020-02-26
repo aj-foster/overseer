@@ -1,0 +1,15 @@
+<h1>Settings</h1>
+
+<%= if @conn.assigns[:message] do %>
+  <p><%= @message %></p>
+<% end %>
+
+<%= form_for @conn, Routes.settings_path(@conn, :update), [], fn f -> %>
+  <%= label f, :scoring_host %>
+  <%= text_input f, :scoring_host, placeholder: "http://...", value: @scoring_host %>
+
+  <%= label f, :event_code %>
+  <%= text_input f, :event_code, placeholder: "2019FLC1", value: @event_code %>
+
+  <%= submit "Submit" %>
+<% end %>
