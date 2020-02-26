@@ -20,7 +20,7 @@ config :overseer, FTC.Display.Endpoint,
 config :overseer, FTC.Display.Endpoint,
   live_reload: [
     patterns: [
-      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"(?<!\.elixir_ls/build/dev/lib/overseer/)priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/ftc/display/{live,views}/.*(ex)$",
       ~r"lib/ftc/display/templates/.*(eex)$"
