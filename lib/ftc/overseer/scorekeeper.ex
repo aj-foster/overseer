@@ -130,7 +130,7 @@ defmodule FTC.Overseer.Scorekeeper do
   #
   defp filter_old_matches(matches) do
     matches
-    |> Enum.reject(fn %{"matchState" => state} -> state == "REVIEW" end)
+    |> Enum.reject(fn %{"matchState" => state} -> state in ["REVIEW", "SUBMITTED"] end)
   end
 
   # Get teams from the match information. Note, could be an elimination match with 2/3 alliance
