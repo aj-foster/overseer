@@ -5,6 +5,7 @@ defmodule FTC.Overseer do
 
   defdelegate set_api_host(host), to: FTC.Overseer.Scorekeeper
   defdelegate set_event_code(code), to: FTC.Overseer.Scorekeeper
+  defdelegate get_match(), to: FTC.Overseer.MatchManager
 
   @doc """
   Stop the application.

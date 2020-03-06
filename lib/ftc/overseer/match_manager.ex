@@ -38,6 +38,14 @@ defmodule FTC.Overseer.MatchManager do
     GenServer.cast(__MODULE__, :abort)
   end
 
+  @doc """
+  Get information about the current match.
+  """
+  @spec get_match() :: {:ok, Match.t()} | {:error, String.t()}
+  def get_match() do
+    GenServer.call(__MODULE__, :get)
+  end
+
   ##########
   # Server #
   ##########
@@ -46,6 +54,9 @@ defmodule FTC.Overseer.MatchManager do
   def init(_opts) do
     {:ok, :inactive}
   end
+
+  def handle_call(:get, _from, :inactive), do: {:reply, {:error, "No active match"}, :inactive}
+  def handle_call(:get, _from, state), do: {:reply, {:ok, state}, state}
 
   def handle_cast({:start, match_name}, _state) do
     Logger.info("Match start: #{match_name}")
