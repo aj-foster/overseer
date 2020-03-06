@@ -65,6 +65,14 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
     end
   end
 
+  @doc """
+  Terminate the connection. This may be used to restart the websocket on a different host.
+  """
+  @spec close :: :ok
+  def close() do
+    WebSockex.cast(__MODULE__, :close)
+  end
+
   ##########
   # Server #
   ##########
@@ -96,6 +104,11 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
   def handle_disconnect(_disconnect_map, state) do
     Logger.warn("Lost connection to Scoring API websocket. Attempting reconnect...")
     {:reconnect, state}
+  end
+
+  @doc false
+  def handle_info(:close, state) do
+    {:close, state}
   end
 
   ###########

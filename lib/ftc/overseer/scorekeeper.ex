@@ -81,11 +81,13 @@ defmodule FTC.Overseer.Scorekeeper do
 
         Logger.info("Setting new scoring API host: #{host}")
         Application.put_env(:overseer, :scoring_host, host)
+        Websocket.close()
 
       %URI{} = uri ->
         host = URI.to_string(uri)
         Logger.info("Setting new scoring API host: #{host}")
         Application.put_env(:overseer, :scoring_host, host)
+        Websocket.close()
     end
   end
 
@@ -104,6 +106,7 @@ defmodule FTC.Overseer.Scorekeeper do
   def set_event_code(event) do
     Logger.info("Setting new scoring event code: #{event}")
     Application.put_env(:overseer, :scoring_event, event)
+    Websocket.close()
   end
 
   # Extract relevant match information.
