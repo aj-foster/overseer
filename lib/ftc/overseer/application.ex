@@ -6,6 +6,7 @@ defmodule FTC.Overseer.Application do
   def start(_type, opts) do
     children =
       [
+        {Phoenix.PubSub.PG2, name: FTC.PubSub},
         FTC.Overseer.Executor,
         FTC.Overseer.MatchManager,
         FTC.Overseer.Scorekeeper,
