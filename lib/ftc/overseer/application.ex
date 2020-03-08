@@ -7,6 +7,7 @@ defmodule FTC.Overseer.Application do
     children =
       [
         {Phoenix.PubSub.PG2, name: FTC.PubSub},
+        FTC.Overseer.Event.Logger,
         FTC.Overseer.Executor,
         FTC.Overseer.MatchManager,
         FTC.Overseer.Scorekeeper,
