@@ -1,6 +1,7 @@
 defmodule FTC.Overseer.Scorekeeper.WebsocketTest do
   use ExUnit.Case
 
+  alias FTC.Overseer.Event
   alias FTC.Overseer.Scorekeeper.{MockSocket, Websocket}
 
   describe "start_link/1" do
@@ -11,35 +12,29 @@ defmodule FTC.Overseer.Scorekeeper.WebsocketTest do
 
   describe "handle_frame/2" do
     test "handles match start message" do
+      Event.subscribe("match")
       event = "handle_frame_2_handles_match_start_message"
-
-      test_pid = self()
-      start_match = fn _name -> send(test_pid, :start_match) end
 
       Websocket.start_link(
         name: FTC.Overseer.Scorekeeper.WebsocketTest,
-        event: event,
-        on_start: start_match
+        event: event
       )
 
       MockSocket.match_start(event)
-      assert_receive :start_match
+      assert_receive {:started, _match_name}
     end
 
     test "handles match abort message" do
+      Event.subscribe("match")
       event = "handle_frame_2_handles_match_abort_message"
-
-      test_pid = self()
-      abort_match = fn -> send(test_pid, :abort_match) end
 
       Websocket.start_link(
         name: FTC.Overseer.Scorekeeper.WebsocketTest,
-        event: event,
-        on_abort: abort_match
+        event: event
       )
 
       MockSocket.match_abort(event)
-      assert_receive :abort_match
+      assert_receive {:aborted, _match_name}
     end
   end
 end

@@ -7,7 +7,7 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
   use WebSockex
   require Logger
 
-  alias FTC.Overseer.MatchManager
+  alias FTC.Overseer.Event
   alias FTC.Overseer.Scorekeeper
 
   ##########
@@ -23,12 +23,6 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
       for which we stream events
 
     * `:name`: (atom, default `__MODULE__`) Name to give the websocket process
-
-    * `:on_abort`: (function, default `&MatchManager.start_match/1`) Function to run when a match
-      is aborted
-
-    * `:on_start`: (function, default `&MatchManager.start_match/1`) Function to run when a match
-      begins
 
   All other options are passed directly to `Websockex.start_link/4`.
   """
@@ -52,13 +46,8 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
           |> Map.put(:scheme, "ws")
           |> URI.to_string()
 
-        opts =
-          opts
-          |> Keyword.put_new(:name, __MODULE__)
-          |> Keyword.put_new(:on_abort, &MatchManager.abort_match/0)
-          |> Keyword.put_new(:on_start, &MatchManager.start_match/1)
-
-        websocket_opts = Keyword.drop(opts, [:event, :on_abort, :on_start])
+        opts = Keyword.put_new(opts, :name, __MODULE__)
+        websocket_opts = Keyword.drop(opts, [:event])
 
         Logger.info("Attempting to connect to Scoring API websocket...")
         WebSockex.start_link(url, __MODULE__, opts, websocket_opts)
@@ -88,7 +77,7 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
     Logger.debug("Received Websocket Frame: #{message}")
 
     with {:ok, data} <- Jason.decode(message),
-         :ok <- process_frame(data, state[:on_start], state[:on_abort]) do
+         :ok <- process_frame(data) do
       {:ok, state}
     else
       {:error, %Jason.DecodeError{}} ->
@@ -115,25 +104,26 @@ defmodule FTC.Overseer.Scorekeeper.Websocket do
   # Helpers #
   ###########
 
-  @spec process_frame(map, fun, fun) :: :ok
-  defp process_frame(
-         %{
-           "updateType" => "MATCH_START",
-           "payload" => %{
-             "shortName" => match_name_str
-           }
-         },
-         start_match,
-         _abort_match
-       ) do
-    start_match.(match_name_str)
+  @spec process_frame(map) :: :ok | {:error, term}
+  defp process_frame(%{
+         "updateType" => "MATCH_START",
+         "payload" => %{
+           "shortName" => match_name_str
+         }
+       }) do
+    Event.match_started(match_name_str)
   end
 
-  defp process_frame(%{"updateType" => "MATCH_ABORT"}, _start_match, abort_match) do
-    abort_match.()
+  defp process_frame(%{
+         "updateType" => "MATCH_ABORT",
+         "payload" => %{
+           "shortName" => match_name_str
+         }
+       }) do
+    Event.match_aborted(match_name_str)
   end
 
-  defp process_frame(frame, _start_match, _abort_match) do
+  defp process_frame(frame) do
     Logger.debug("Dropping frame", frame: frame)
   end
 end
