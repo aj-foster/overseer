@@ -55,6 +55,11 @@ defmodule FTC.Overseer.WLAN.Manager do
     {:noreply, state}
   end
 
+  def handle_info({:aborted, _match_name}, state) do
+    stop_all()
+    {:noreply, state}
+  end
+
   def handle_info(_message, state), do: {:noreply, state}
 
   ###########
