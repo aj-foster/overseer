@@ -1,9 +1,30 @@
 defmodule FTC.Overseer.Event do
   @moduledoc """
-  Provides functions that produce subscribable events.
+  Provides an event bus. Processes can subscribe to topics and produce events using the
+  various helper functions.
   """
   alias FTC.PubSub, as: PS
   alias Phoenix.PubSub
+
+  #############
+  # Consumers #
+  #############
+
+  @doc """
+  Subscribe to the given topic.
+  """
+  @spec subscribe(String.t()) :: :ok | {:error, term}
+  def subscribe(topic) do
+    PubSub.subscribe(PS, topic)
+  end
+
+  @doc """
+  Unsubscribe from the given topic.
+  """
+  @spec unsubscribe(String.t()) :: :ok | {:error, term}
+  def unsubscribe(topic) do
+    PubSub.unsubscribe(PS, topic)
+  end
 
   #########
   # Match #
@@ -48,9 +69,9 @@ defmodule FTC.Overseer.Event do
   @doc """
   Signal that a team is being tracked.
   """
-  @spec team_found(pos_integer) :: :ok | {:error, term}
-  def team_found(team) do
-    PubSub.broadcast(PS, "team", {:found, team})
+  @spec team_found(pos_integer, pos_integer) :: :ok | {:error, term}
+  def team_found(team, channel) do
+    PubSub.broadcast(PS, "team", {:found, team, channel})
   end
 
   @doc """
