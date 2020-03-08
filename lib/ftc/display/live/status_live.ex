@@ -2,6 +2,7 @@ defmodule FTC.Display.StatusLive do
   use Phoenix.LiveView
   require Logger
 
+  alias FTC.Overseer.Event
   alias FTC.Overseer.Match
 
   def render(assigns) do
@@ -10,7 +11,8 @@ defmodule FTC.Display.StatusLive do
 
   @spec mount(any, Phoenix.LiveView.Socket.t()) :: {:ok, Phoenix.LiveView.Socket.t()}
   def mount(_, socket) do
-    Phoenix.PubSub.subscribe(FTC.Display.PubSub, "status")
+    :ok = Event.subscribe("match")
+    :ok = Event.subscribe("team")
 
     case FTC.Overseer.get_match() do
       {:ok, %Match{} = match} ->
@@ -36,17 +38,17 @@ defmodule FTC.Display.StatusLive do
   end
 
   @spec handle_info(
-          {:start, any}
-          | {:teams, [pos_integer()]}
-          | :stop
-          | :abort
-          | {:problem, any}
-          | {:tracking, any},
+          {:started, String.t()}
+          | {:populated, String.t(), [pos_integer]}
+          | {:ended, String.t()}
+          | {:aborted, String.t()}
+          | {:found, pos_integer, pos_integer}
+          | {:deauthenticated, pos_integer, pos_integer},
           Phoenix.LiveView.Socket.t()
         ) :: {:noreply, Phoenix.LiveView.Socket.t()}
 
   # Match started.
-  def handle_info({:start, match_name}, socket) do
+  def handle_info({:started, match_name}, socket) do
     socket =
       socket
       |> assign(:status, "In Progress")
@@ -56,7 +58,7 @@ defmodule FTC.Display.StatusLive do
   end
 
   # Match ended.
-  def handle_info(:stop, socket) do
+  def handle_info({:ended, _match_name}, socket) do
     socket =
       socket
       |> assign(:status, "Finished")
@@ -65,7 +67,7 @@ defmodule FTC.Display.StatusLive do
   end
 
   # Match aborted.
-  def handle_info(:abort, socket) do
+  def handle_info({:aborted, _match_name}, socket) do
     socket =
       socket
       |> assign(:status, "Aborted")
@@ -74,7 +76,7 @@ defmodule FTC.Display.StatusLive do
   end
 
   # Received information about which teams are playing.
-  def handle_info({:teams, teams}, socket) do
+  def handle_info({:populated, _match_name, teams}, socket) do
     s = "searching"
     [red1, blue1, red2, blue2] = transpose_teams(teams)
 
@@ -87,7 +89,7 @@ defmodule FTC.Display.StatusLive do
   end
 
   # Tracking of a team has begun.
-  def handle_info({:tracking, team}, socket) do
+  def handle_info({:found, team, _channel}, socket) do
     statuses = Map.put(socket.assigns[:statuses], team, "tracking")
     socket = assign(socket, :statuses, statuses)
 
@@ -95,12 +97,14 @@ defmodule FTC.Display.StatusLive do
   end
 
   # An issue with a team has been detected.
-  def handle_info({:problem, team}, socket) do
+  def handle_info({:deauthenticated, team, _total_count}, socket) do
     statuses = Map.put(socket.assigns[:statuses], team, "problem")
     socket = assign(socket, :statuses, statuses)
 
     {:noreply, socket}
   end
+
+  def handle_info(_message, socket), do: {:noreply, socket}
 
   # Reposition teams to appear similar to their physical orientation.
   defp transpose_teams([blue1, blue2, red1, red2]), do: [red1, blue1, red2, blue2]
