@@ -3,7 +3,7 @@ defmodule FTC.Overseer.MatchManager do
   require Logger
 
   alias FTC.Overseer.Event
-  alias FTC.Overseer.Match
+  alias FTC.Overseer.Match.State
   alias FTC.Overseer.Scorekeeper
 
   # Total time: authonomous + changeover + teleop
@@ -40,7 +40,7 @@ defmodule FTC.Overseer.MatchManager do
   @doc """
   Get information about the current match.
   """
-  @spec get_match() :: {:ok, Match.t()} | {:error, String.t()}
+  @spec get_match() :: {:ok, State.t()} | {:error, String.t()}
   def get_match() do
     GenServer.call(__MODULE__, :get)
   end
@@ -49,7 +49,7 @@ defmodule FTC.Overseer.MatchManager do
   # Server #
   ##########
 
-  @spec init(any) :: {:ok, MatchState.t()}
+  @spec init(any) :: {:ok, :inactive}
   def init(_opts) do
     :ok = Event.subscribe("match")
     {:ok, :inactive}
@@ -62,11 +62,11 @@ defmodule FTC.Overseer.MatchManager do
     timer = Process.send_after(self(), :stop, @match_length_ms)
 
     case Scorekeeper.get_active_match() do
-      {:ok, %Match{name: ^match_name, teams: teams} = match} ->
+      {:ok, %State{name: ^match_name, teams: teams} = match} ->
         Event.match_populated(match_name, teams)
         {:noreply, %{match | timer: timer}}
 
-      {:ok, %Match{name: name, teams: teams} = match} ->
+      {:ok, %State{name: name, teams: teams} = match} ->
         Logger.error("Expected match #{match_name} but current active match is #{name}")
 
         Event.match_populated(match_name, teams)
@@ -79,12 +79,12 @@ defmodule FTC.Overseer.MatchManager do
     end
   end
 
-  def handle_info({:aborted, match_name}, %Match{name: match_name, timer: timer}) do
+  def handle_info({:aborted, match_name}, %State{name: match_name, timer: timer}) do
     Process.cancel_timer(timer)
     {:noreply, :inactive}
   end
 
-  def handle_info(:stop, %Match{name: name}) do
+  def handle_info(:stop, %State{name: name}) do
     Event.match_ended(name)
     {:noreply, :inactive}
   end

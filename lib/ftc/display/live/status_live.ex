@@ -3,7 +3,7 @@ defmodule FTC.Display.StatusLive do
   require Logger
 
   alias FTC.Overseer.Event
-  alias FTC.Overseer.Match
+  alias FTC.Overseer.Match.State
 
   def render(assigns) do
     Phoenix.View.render(FTC.Display.PageView, "index.html", assigns)
@@ -15,7 +15,7 @@ defmodule FTC.Display.StatusLive do
     :ok = Event.subscribe("team")
 
     case FTC.Overseer.get_match() do
-      {:ok, %Match{} = match} ->
+      {:ok, %State{} = match} ->
         socket =
           socket
           |> assign(:status, "In Progress")

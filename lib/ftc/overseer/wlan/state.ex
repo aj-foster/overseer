@@ -1,4 +1,4 @@
-defmodule FTC.Overseer.Adapter.State do
+defmodule FTC.Overseer.WLAN.State do
   @moduledoc """
   Provides a struct to hold the state of a wireless adapter and its driving process.
   """

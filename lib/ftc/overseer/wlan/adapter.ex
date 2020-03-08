@@ -2,9 +2,9 @@ defmodule FTC.Overseer.WLAN.Adapter do
   use GenServer
   require Logger
 
-  alias FTC.Overseer.Adapter.State
   alias FTC.Overseer.Event
   alias FTC.Overseer.Executor
+  alias FTC.Overseer.WLAN.State
 
   @typep opts :: [{:name, String.t()}]
 

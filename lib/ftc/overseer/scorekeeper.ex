@@ -5,7 +5,7 @@ defmodule FTC.Overseer.Scorekeeper do
   use Retry
   require Logger
 
-  alias FTC.Overseer.Match
+  alias FTC.Overseer.Match.State
   alias FTC.Overseer.Scorekeeper.Websocket
 
   @doc false
@@ -37,7 +37,7 @@ defmodule FTC.Overseer.Scorekeeper do
   Request information from the scoring API about the current active match.
   """
   @spec get_active_match() ::
-          {:ok, Match.t()}
+          {:ok, State.t()}
           | {:error, HTTPoison.Error.t() | Jason.DecodeError.t()}
           | {:error, String.t(), map}
   def get_active_match() do
@@ -111,14 +111,14 @@ defmodule FTC.Overseer.Scorekeeper do
 
   # Extract relevant match information.
   #
-  @spec parse_match(map) :: {:ok, Match.t()} | {:error, String.t(), map}
+  @spec parse_match(map) :: {:ok, State.t()} | {:error, String.t(), map}
   defp parse_match(data) do
     with %{"matches" => matches} <- data,
          [match] <- filter_old_matches(matches),
          %{"field" => field, "matchName" => name} <- match,
          [blue1, blue2, red1, red2] <- parse_teams(match) do
       {:ok,
-       %Match{
+       %State{
          name: name,
          field: field,
          teams: [blue1, blue2, red1, red2]
