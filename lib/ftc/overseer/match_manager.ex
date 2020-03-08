@@ -2,10 +2,9 @@ defmodule FTC.Overseer.MatchManager do
   use GenServer
   require Logger
 
-  alias FTC.Display.Status
+  alias FTC.Overseer.Event
   alias FTC.Overseer.Match
   alias FTC.Overseer.Scorekeeper
-  alias FTC.Overseer.WLAN
 
   # Total time: authonomous + changeover + teleop
   @match_length_ms (30 + 8 + 120) * 1000
@@ -52,28 +51,25 @@ defmodule FTC.Overseer.MatchManager do
 
   @spec init(any) :: {:ok, MatchState.t()}
   def init(_opts) do
+    :ok = Event.subscribe("match")
     {:ok, :inactive}
   end
 
   def handle_call(:get, _from, :inactive), do: {:reply, {:error, "No active match"}, :inactive}
   def handle_call(:get, _from, state), do: {:reply, {:ok, state}, state}
 
-  def handle_cast({:start, match_name}, _state) do
-    Logger.info("Match start: #{match_name}")
-    Status.start_match(match_name)
+  def handle_info({:started, match_name}, _state) do
     timer = Process.send_after(self(), :stop, @match_length_ms)
 
     case Scorekeeper.get_active_match() do
       {:ok, %Match{name: ^match_name, teams: teams} = match} ->
-        Status.set_teams(teams)
-        WLAN.observe(teams)
+        Event.match_populated(match_name, teams)
         {:noreply, %{match | timer: timer}}
 
       {:ok, %Match{name: name, teams: teams} = match} ->
         Logger.error("Expected match #{match_name} but current active match is #{name}")
 
-        Status.set_teams(teams)
-        WLAN.observe(teams)
+        Event.match_populated(match_name, teams)
         {:noreply, %{match | timer: timer}}
 
       other ->
@@ -83,27 +79,20 @@ defmodule FTC.Overseer.MatchManager do
     end
   end
 
-  def handle_cast(:abort, %Match{name: name, timer: timer}) do
-    Logger.info("Match abort: #{name}")
+  def handle_info({:aborted, match_name}, %Match{name: match_name, timer: timer}) do
     Process.cancel_timer(timer)
-    Status.abort_match()
-
-    WLAN.stop_all()
     {:noreply, :inactive}
   end
 
   def handle_info(:stop, %Match{name: name}) do
-    Logger.info("Match end: #{name}")
-    Status.stop_match()
-
-    WLAN.stop_all()
+    Event.match_ended(name)
     {:noreply, :inactive}
   end
 
   def handle_info(:stop, _state) do
     Logger.info("Match end: [unknown]")
-
-    WLAN.stop_all()
     {:noreply, :inactive}
   end
+
+  def handle_info(_message, state), do: {:noreply, state}
 end
