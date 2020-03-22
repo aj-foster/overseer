@@ -96,7 +96,7 @@ defmodule FTC.Overseer.WLAN.Adapter do
         {:noreply, %{state | team: team, channel: channel, bssid: address}}
 
       _ ->
-        Logger.warn("Team #{team} not found in scan")
+        Logger.debug("Team #{team} not found in scan")
         Process.send_after(self(), :observe, 1000)
         {:noreply, %{state | team: team}}
     end
