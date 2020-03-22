@@ -9,7 +9,7 @@ defmodule FTC.Overseer.Application do
         {Phoenix.PubSub.PG2, name: FTC.PubSub},
         FTC.Overseer.Event.Logger,
         FTC.Overseer.Executor,
-        FTC.Overseer.MatchManager,
+        FTC.Overseer.Match,
         FTC.Overseer.Scorekeeper,
         FTC.Overseer.WLAN,
         FTC.Display.Endpoint,

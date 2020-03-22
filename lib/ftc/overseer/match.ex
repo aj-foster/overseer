@@ -1,4 +1,4 @@
-defmodule FTC.Overseer.MatchManager do
+defmodule FTC.Overseer.Match do
   use GenServer
   require Logger
 
