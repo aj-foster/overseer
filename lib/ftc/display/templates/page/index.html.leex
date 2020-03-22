@@ -3,7 +3,30 @@
 </div>
 
 <div class="teams">
-<%= for team <- @teams do %>
-  <div class="team <%= @statuses[team] %>"><%= team %></div>
-<% end %>
+  <%= for team <- @teams do %>
+    <% status = @statuses[team] %>
+
+    <%= if is_map(status) do %>
+      <div class="team <%= Map.get(status, :status, "") %>">
+        <%= team %>
+        <div class="channel">
+          <%= Map.get(status, :channel, "?") %>
+          <div class="caption">channel</div>
+        </div>
+        <div class="packets">
+          <%= Map.get(status, :packets, 0) %>
+          <div class="caption">
+            <% packets = Map.get(status, :packets, 0) %>
+            <%= if packets == 1 do %>
+              packet
+            <% else %>
+              packets
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="team"><%= team %></div>
+    <% end %>
+  <% end %>
 </div>
