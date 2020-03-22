@@ -6,6 +6,17 @@ defmodule FTC.Overseer.Event do
   alias FTC.PubSub, as: PS
   alias Phoenix.PubSub
 
+  @typedoc """
+  All possible events published by this module.
+  """
+  @type event ::
+          {:started, String.t()}
+          | {:populated, String.t(), [pos_integer]}
+          | {:ended, String.t()}
+          | {:aborted, String.t()}
+          | {:found, pos_integer, pos_integer}
+          | {:deauthenticated, pos_integer, pos_integer}
+
   #############
   # Consumers #
   #############

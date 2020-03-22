@@ -2,6 +2,7 @@ defmodule FTC.Display.StatusLive do
   use Phoenix.LiveView
   require Logger
 
+  alias Phoenix.LiveView.Socket
   alias FTC.Overseer.Event
   alias FTC.Overseer.Match.State
 
@@ -9,7 +10,7 @@ defmodule FTC.Display.StatusLive do
     Phoenix.View.render(FTC.Display.PageView, "index.html", assigns)
   end
 
-  @spec mount(any, Phoenix.LiveView.Socket.t()) :: {:ok, Phoenix.LiveView.Socket.t()}
+  @spec mount(any, Socket.t()) :: {:ok, Socket.t()}
   def mount(_, socket) do
     :ok = Event.subscribe("match")
     :ok = Event.subscribe("team")
@@ -37,15 +38,7 @@ defmodule FTC.Display.StatusLive do
     end
   end
 
-  @spec handle_info(
-          {:started, String.t()}
-          | {:populated, String.t(), [pos_integer]}
-          | {:ended, String.t()}
-          | {:aborted, String.t()}
-          | {:found, pos_integer, pos_integer}
-          | {:deauthenticated, pos_integer, pos_integer},
-          Phoenix.LiveView.Socket.t()
-        ) :: {:noreply, Phoenix.LiveView.Socket.t()}
+  @spec handle_info(Event.event(), Socket.t()) :: {:noreply, Socket.t()}
 
   # Match started.
   def handle_info({:started, match_name}, socket) do

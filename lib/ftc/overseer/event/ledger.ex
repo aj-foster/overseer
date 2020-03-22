@@ -51,6 +51,8 @@ defmodule FTC.Overseer.Event.Ledger do
 
   # Getters
 
+  @spec handle_call({:get, String.t(), pos_integer}, any, {:ets.tab(), String.t()}) ::
+          {:reply, map | nil, {:ets.tab(), String.t()}}
   def handle_call({:get, match, team}, _from, {ledger, current_match}) do
     with [{^match, teams, _log}] <- :ets.lookup(ledger, match),
          {:ok, team_info} <- Map.fetch(teams, team) do
@@ -59,6 +61,9 @@ defmodule FTC.Overseer.Event.Ledger do
       _ -> {:reply, nil, {ledger, current_match}}
     end
   end
+
+  @spec handle_info(Event.event(), {:ets.tab(), String.t() | nil}) ::
+          {:noreply, {:ets.tab(), String.t()}}
 
   # Match
 
